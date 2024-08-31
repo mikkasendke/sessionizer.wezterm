@@ -2,7 +2,7 @@
 A simple sessionizer for wezterm inspired by a discussion started by @keturiosakys at https://github.com/wez/wezterm/discussions/4796 and originally inspired by ThePrimeagen's tmux-sessionizer.
 
 ## Requirements
-To use the default command `fd` is required
+To use the default command `fd`[https://github.com/sharkdp/fd] is required
 
 ## Usage
 To install `sessionizer.wezterm` just add the following two lines to your wezterm.lua
@@ -15,7 +15,7 @@ This will enable the following key binds:
  * `ALT+s` show the sessionizer
  * `ALT+m` switch to the most recently selected workspace
 
-Now you need to at least add the path(s) you want the sessionizer to operate on. You can do this
+Now you need to add the path(s) you want the sessionizer to operate on. You can do this
 by adding your path(s) to `sessionizer.config` like so
 ```lua
 sessionizer.config = {
