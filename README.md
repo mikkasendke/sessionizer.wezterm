@@ -15,6 +15,8 @@ sessionizer.apply_to_config(config)
 This will enable the following key binds:
  * `ALT+s` show the sessionizer
  * `ALT+m` switch to the most recently selected workspace
+
+
 (This only will apply correctly for now if you call `apply_to_config` after you define your own config.keys)
 
 Now you need to add the path(s) you want the sessionizer to operate on. You can do this
