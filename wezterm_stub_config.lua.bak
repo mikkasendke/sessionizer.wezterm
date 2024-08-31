@@ -1,0 +1,74 @@
+local wezterm = require "wezterm"
+
+local config = {}
+
+if wezterm.config_builder then
+    config = wezterm.config_builder()
+end
+
+config.enable_wayland = true -- enabled by default
+
+config.audible_bell = "Disabled"
+config.check_for_updates = false
+
+config.font = wezterm.font_with_fallback {
+    { family = "JetBrainsMonoNLNerdFont", weight = 400 },
+}
+
+config.font_size = 17.3
+
+config.default_prog = {
+    "/run/current-system/sw/bin/zsh"
+}
+
+config.adjust_window_size_when_changing_font_size = false
+
+config.bold_brightens_ansi_colors = false
+
+config.hide_mouse_cursor_when_typing = false
+
+config.enable_tab_bar = false
+
+config.use_fancy_tab_bar = false
+config.tab_bar_at_bottom = true
+config.show_tab_index_in_tab_bar = true
+config.hide_tab_bar_if_only_one_tab = false
+config.show_new_tab_button_in_tab_bar = false
+config.tab_max_width = 24
+
+config.window_decorations = "RESIZE"
+
+config.window_padding = {
+    left = 2,
+    right = 0,
+    top = 0,
+    bottom = 0,
+}
+
+local colorscheme = wezterm.get_builtin_color_schemes()["tokyonight_moon"]
+
+
+colorscheme.background = "161616"
+colorscheme.selection_bg = "555577"
+
+config.color_schemes = {
+    ["current-colorscheme"] = colorscheme
+}
+
+config.color_scheme = "current-colorscheme"
+
+config.window_background_opacity = 0.85
+
+
+-- wezterm.plugin.update_all()
+wezterm.plugin.require "/home/mikka/dev/wezterm-sessionizer-plugin"
+
+local sessionizer = require("sZshomesZsmikkasZsdevsZswezterm-sessionizer-plugin")
+sessionizer.apply_to_config(config, false)
+
+sessionizer.config = {
+    paths = "/home/mikka/dev/",
+    show_most_recent = true,
+}
+
+return config

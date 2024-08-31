@@ -2,7 +2,24 @@ local wez = require "wezterm"
 local act = wez.action
 
 local plugin = {}
-plugin.config = {}
+plugin.config = {
+    command = {
+        "fd",
+        "-HI",
+        "-td",
+        "^.git$",
+        "--max-depth=16",
+        "--prune",
+        "--format",
+        "{//}"
+    },
+    paths = {},
+    show_default = true,
+    show_most_recent = true,
+    fuzzy = true,
+    title = "Sessionzer"
+}
+
 
 local function add_bind(config, bind)
     config.keys[#config.keys + 1] = bind
@@ -35,34 +52,8 @@ local function shallow_copy(t)
     return dest
 end
 
-local function get_effective_config()
-    local defaults = {
-        command = {
-            "fd",
-            "-HI",
-            "-td",
-            "^.git$",
-            "--max-depth=16",
-            "--prune",
-            "--format",
-            "{//}"
-        },
-        paths = {},
-        show_default = true,
-        show_most_recent = true,
-        fuzzy = true,
-        title = "Sessionzer"
-    }
-
-    for k, v in pairs(plugin.config) do
-        defaults[k] = v
-    end
-
-    return defaults
-end
-
 local function apply_commands(entries)
-    local config = get_effective_config()
+    local config = plugin.config
     local paths = config.paths
     if type(paths) == "string" then
         paths = { paths }
@@ -88,7 +79,7 @@ local function apply_commands(entries)
 end
 
 local function apply_configured(entries)
-    local config = get_effective_config()
+    local config = plugin.config
 
     if config.show_most_recent and
         wez.GLOBAL.sessionzer and
@@ -116,7 +107,7 @@ local function set_most_recent_workspace(current_workspace)
 end
 
 local function make_input_selector(entries)
-    local config = get_effective_config()
+    local config = plugin.config
     return act.InputSelector {
         title = config.title,
         choices = entries,
