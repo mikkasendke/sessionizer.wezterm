@@ -3,6 +3,7 @@ local act = wez.action
 
 local plugin = {}
 plugin.config = {
+    paths = {},
     command = {
         "fd",
         "-HI",
@@ -13,11 +14,12 @@ plugin.config = {
         "--format",
         "{//}"
     },
-    paths = {},
+    title = "Sessionzer",
     show_default = true,
     show_most_recent = true,
     fuzzy = true,
-    title = "Sessionzer"
+    additional_directories = {},
+    show_additional_before_paths = false,
 }
 
 
@@ -81,13 +83,26 @@ end
 local function apply_configured(entries)
     local config = plugin.config
 
+    local custom_dirs = config.additional_directories
+    if type(custom_dirs) == "string" then
+        custom_dirs = { custom_dirs }
+    end
+
+    for dir in pairs(custom_dirs) do
+        if config.show_additional_before_paths then
+            table.insert(entries, 1, { id = dir, label = dir, })
+        else
+            table.insert(entries, #entries + 1, { id = dir, label = dir, })
+        end
+    end
+
     if config.show_most_recent and
         wez.GLOBAL.sessionzer and
         wez.GLOBAL.sessionzer.most_recent_workspace then
         table.insert(entries, 1, wez.GLOBAL.sessionzer.most_recent_workspace)
     end
     if config.show_default then
-        table.insert(entries, 1, { id = "default", label = "Default" })
+        table.insert(entries, 1, { id = "default", label = "Default", })
     end
     return entries
 end

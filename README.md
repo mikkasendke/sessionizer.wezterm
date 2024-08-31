@@ -106,6 +106,8 @@ To customize further there is `sessionizer.config` the following is the default 
     show_default = true,
     show_most_recent = true,
     fuzzy = true,
+    additional_directories = {},
+    show_additional_before_paths = false,
 }
 ```
 Right now the directory to search is just appended to the command that is listed found in `sessionizer.config.command`
