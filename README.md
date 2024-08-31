@@ -69,6 +69,8 @@ end
 local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
 sessionizer.apply_to_config(config, true) -- disable default binds (right now you can also just not call this)
 
+sessionizer.config.paths = "/home/mikka/dev"
+
 config.keys = {
     {
         key = "w",
