@@ -88,7 +88,7 @@ local function apply_configured(entries)
         custom_dirs = { custom_dirs }
     end
 
-    for dir in pairs(custom_dirs) do
+    for _, dir in pairs(custom_dirs) do
         if config.show_additional_before_paths then
             table.insert(entries, 1, { id = dir, label = dir, })
         else
