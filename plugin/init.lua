@@ -46,6 +46,32 @@ plugin.apply_to_config = function(config, disable_default_binds)
     end
 end
 
+local function get_effective_config(config)
+    local defaults = {
+        paths = {},
+        command = {
+            "fd",
+            "-HI",
+            "-td",
+            "^.git$",
+            "--max-depth=16",
+            "--prune",
+            "--format",
+            "{//}"
+        },
+        title = "Sessionzer",
+        show_default = true,
+        show_most_recent = true,
+        fuzzy = true,
+        additional_directories = {},
+        show_additional_before_paths = false,
+    }
+    for k, v in pairs(config) do
+        defaults[k] = v
+    end
+    return defaults
+end
+
 local function shallow_copy(t)
     local dest = {}
     for k, v in pairs(t) do
@@ -55,7 +81,7 @@ local function shallow_copy(t)
 end
 
 local function apply_commands(entries)
-    local config = plugin.config
+    local config = get_effective_config(plugin.config)
     local paths = config.paths
     if type(paths) == "string" then
         paths = { paths }
@@ -81,7 +107,7 @@ local function apply_commands(entries)
 end
 
 local function apply_configured(entries)
-    local config = plugin.config
+    local config = get_effective_config(plugin.config)
 
     local custom_dirs = config.additional_directories
     if type(custom_dirs) == "string" then
@@ -122,7 +148,7 @@ local function set_most_recent_workspace(current_workspace)
 end
 
 local function make_input_selector(entries)
-    local config = plugin.config
+    local config = get_effective_config(plugin.config)
     return act.InputSelector {
         title = config.title,
         choices = entries,
