@@ -5,6 +5,7 @@ A simple sessionizer for wezterm inspired by a discussion started by [@keturiosa
 To use the default command [`fd`](https://github.com/sharkdp/fd) is required
 
 ## Usage
+`⚠️ note that this is WIP`
 To install `sessionizer.wezterm` just add the following two lines to your wezterm.lua
 ```lua
 local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
