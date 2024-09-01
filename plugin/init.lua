@@ -218,7 +218,7 @@ local function make_input_selector(entries)
 
             local count = 1
             local goto_branch = ""
-            for el in label:gmatch "[^\n]+" do
+            for el in label:gmatch "^\\S+" do
                 wez.log_info("count: " .. count .. "; element: " .. el)
                 if count == 2 then
                     goto_branch = el
