@@ -223,13 +223,17 @@ local function make_input_selector(entries)
                 end
                 count = count + 1
             end
-            local success, stdout, _ = wez.run_child_process {
+            local cmd = {
                 "git",
                 "-C",
                 id,
                 "switch",
                 goto_branch,
             }
+
+            wez.log_info "running:"
+            wez.log_info(cmd)
+            local success, stdout, _ = wez.run_child_process(cmd)
             window:perform_action(
                 act.SwitchToWorkspace({ name = id, spawn = { cwd = id } }),
                 pane
