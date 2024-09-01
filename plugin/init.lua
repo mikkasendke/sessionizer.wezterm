@@ -2,11 +2,7 @@ local wez = require "wezterm"
 local act = wez.action
 
 local plugin = {}
-plugin.config = {
-    command_options = {
-        exclude = {}
-    },
-}
+plugin.config = { command_options = { exclude = {}, }, }
 
 
 local function add_bind(config, bind)
@@ -34,6 +30,7 @@ end
 
 
 local function make_default_command(options)
+    wez.log_info "I was called"
     local command = {
         "fd",
         "-Hs",
@@ -60,7 +57,6 @@ local function make_default_command(options)
 end
 
 local function get_effective_config(config)
-    wez.log_info "apply"
     local defaults = {
         paths = {},
         title = "Sessionzer",
@@ -80,13 +76,11 @@ local function get_effective_config(config)
         defaults[k] = v
     end
 
-    local settings = defaults
-    if not settings.command then
-        wez.log_info(make_default_command(settings.command_options))
-        settings.command = make_default_command(settings.command_options)
+    if not defaults.command then
+        defaults.command = make_default_command(defaults.command_options)
     end
 
-    return settings
+    return defaults
 end
 
 local function shallow_copy(t)
