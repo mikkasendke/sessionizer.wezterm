@@ -48,7 +48,7 @@ local function make_default_command(options)
         options.exclude = { options.exclude }
     end
 
-    for _, v in options.exclude do
+    for _, v in pairs(options.exclude) do
         command[#command + 1] = "-E "
         command[#command + 1] = v
     end
