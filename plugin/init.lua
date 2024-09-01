@@ -142,7 +142,7 @@ local function apply_configured(entries)
         if config.show_additional_before_paths then
             table.insert(entries, 1, { id = dir, label = dir, })
         else
-            table.insert(entries, #entries or 0 + 1, { id = dir, label = dir, })
+            table.insert(entries, #(entries or {}) + 1, { id = dir, label = dir, })
         end
     end
 
