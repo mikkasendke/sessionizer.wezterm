@@ -96,14 +96,19 @@ To customize further there is `sessionizer.config` the following is the default 
 {
     paths = {},
     command = {
-        "fd",
-        "-HI",
-        "-td",
-        "^.git$",
-        "--max-depth=16",
-        "--prune",
-        "--format",
-        "{//}"
+        -- this is populated based on command_options it
+        -- effectively looks like the following
+        -- "fd",
+        -- "-Hs",
+        -- "^.git$",
+        -- "-td",
+        -- "--max-depth=" .. command_options.max_depth,
+        -- "--prune",
+        -- "--format",
+        -- command_options.format,
+        -- Here any number of excludes for example
+        -- -E node_modules
+        -- -E another_directory_to_exclude
     },
     title = "Sessionzer",
     show_default = true,
@@ -111,6 +116,12 @@ To customize further there is `sessionizer.config` the following is the default 
     fuzzy = true,
     additional_directories = {},
     show_additional_before_paths = false,
+    command_options = {
+        include_submodules = false,
+        max_depth = 16,
+        format = "{//}",
+        exclude = { "node_modules" } -- Note that this can also just be a string
+    },
 }
 ```
 Right now the directory to search is just appended to the command that is listed found in `sessionizer.config.command`
