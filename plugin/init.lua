@@ -3,23 +3,9 @@ local act = wez.action
 
 local plugin = {}
 plugin.config = {
-    paths = {},
-    command = {
-        "fd",
-        "-HI",
-        "-td",
-        "^.git$",
-        "--max-depth=16",
-        "--prune",
-        "--format",
-        "{//}"
+    command_options = {
+        exclude = {}
     },
-    title = "Sessionzer",
-    show_default = true,
-    show_most_recent = true,
-    fuzzy = true,
-    additional_directories = {},
-    show_additional_before_paths = false,
 }
 
 
@@ -46,29 +32,68 @@ plugin.apply_to_config = function(config, disable_default_binds)
     end
 end
 
+
+local function make_default_command(options)
+    local command = {
+        "fd",
+        "-Hs",
+        "^.git$",
+        "-td",
+        "--max-depth=" .. options.max_depth,
+        "--prune",
+        "--format",
+        options.format,
+    }
+    if options.include_submodules then
+        command[#command + 1] = "-tf"
+    end
+    if type(options.exclude) == "string" then
+        options.exclude = { options.exclude }
+    end
+
+    for _, v in options.exclude do
+        command[#command + 1] = "-E "
+        command[#command + 1] = v
+    end
+
+
+    return {
+        "fd",
+        "-HI",
+        "-td",
+        "^.git$",
+        "--max-depth=16",
+        "--prune",
+        "--format",
+        "{//}",
+    }
+end
+
 local function get_effective_config(config)
     local defaults = {
         paths = {},
-        command = {
-            "fd",
-            "-HI",
-            "-td",
-            "^.git$",
-            "--max-depth=16",
-            "--prune",
-            "--format",
-            "{//}"
-        },
+        command = {},
         title = "Sessionzer",
         show_default = true,
         show_most_recent = true,
         fuzzy = true,
         additional_directories = {},
         show_additional_before_paths = false,
+        command_options = {
+            include_submodules = false,
+            max_depth = 16,
+            format = "{//}",
+            exclude = { "node_modules" }
+        },
     }
     for k, v in pairs(config) do
         defaults[k] = v
     end
+    local settings = defaults
+    if not settings.command then
+        settings.command = make_default_command(settings.command_options)
+    end
+
     return defaults
 end
 
