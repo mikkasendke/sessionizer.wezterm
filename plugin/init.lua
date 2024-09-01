@@ -131,6 +131,8 @@ local function apply_commands(entries)
 end
 
 local function apply_configured(entries)
+    wez.log_info "WE GET:"
+    wez.log_info(entries)
     local config = get_effective_config(plugin.config)
 
     local custom_dirs = config.additional_directories
@@ -142,7 +144,7 @@ local function apply_configured(entries)
         if config.show_additional_before_paths then
             table.insert(entries, 1, { id = dir, label = dir, })
         else
-            table.insert(entries, #(entries or {}) + 1, { id = dir, label = dir, })
+            table.insert(entries, #entries + 1, { id = dir, label = dir, })
         end
     end
 
