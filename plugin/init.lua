@@ -116,8 +116,6 @@ local function add_entry(entries, position, id, label)
             "-l",
             "--format=\"%(refname:short)\"",
         }
-        wez.log_info("command:")
-        wez.log_info(list_branches_command)
         local success, stdout, _ = wez.run_child_process(list_branches_command)
         if not success then
             wez.log_info("Sessionzer: Could not list git repositories.")
@@ -227,6 +225,8 @@ local function make_input_selector(entries)
             end
             local success, stdout, _ = wez.run_child_process {
                 "git",
+                "-C",
+                id,
                 "switch",
                 goto_branch,
             }
