@@ -58,6 +58,17 @@ local function make_default_command(options)
     return command
 end
 
+local function merge_tables(t1, t2)
+    for k, v in pairs(t2) do
+        if type(v) == "table" and type(t1[k] or false) == "table" then
+            merge_tables(t1[k] or {}, t2[k] or {})
+            goto continue
+        end
+        t1[k] = v
+        ::continue::
+    end
+end
+
 local function get_effective_config(config)
     local defaults = {
         paths = {},
@@ -74,9 +85,11 @@ local function get_effective_config(config)
             exclude = { "node_modules" }
         },
     }
-    for k, v in pairs(config) do
-        defaults[k] = v
-    end
+    -- for k, v in pairs(config) do
+    --     defaults[k] = v
+    -- end
+
+    merge_tables(defaults, config)
 
     if not defaults.command then
         defaults.command = make_default_command(defaults.command_options)
