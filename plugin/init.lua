@@ -106,6 +106,7 @@ local function apply_commands(entries)
     for _, dir in pairs(paths) do
         local command = shallow_copy(config.command)
         command[#command + 1] = dir
+        wez.log_info(command)
 
         local success, stdout, _ = wez.run_child_process(command)
         if not success then
