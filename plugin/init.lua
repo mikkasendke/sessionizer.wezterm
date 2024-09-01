@@ -81,6 +81,7 @@ local function get_effective_config(config)
             format = "{//}",
             exclude = { "node_modules" }
         },
+        experimental_branches = false,
     }
     -- for k, v in pairs(config) do
     --     defaults[k] = v
@@ -104,8 +105,8 @@ local function shallow_copy(t)
 end
 
 local function add_entry(entries, position, id, label)
-    local git = true
-    if git then
+    local config = get_effective_config(plugin.config)
+    if config.experimental_branches then
         local list_branches_command = {
             "git",
             "-C",
@@ -213,31 +214,35 @@ local function make_input_selector(entries)
             if not id then return end
 
             local current_workspace = wez.mux.get_active_workspace()
-            -- if current_workspace == id then return end
+            if not config.experimental_branches then
+                if current_workspace == id then return end
+            end
 
             set_most_recent_workspace(current_workspace)
 
-            local count = 1
-            local goto_branch = ""
-            for el in label:gmatch "%S+" do
-                wez.log_info("count: " .. count .. "; element: " .. el)
-                if count == 2 then
-                    goto_branch = el
+            if config.experimental_branches then
+                local count = 1
+                local goto_branch = ""
+                for el in label:gmatch "%S+" do
+                    wez.log_info("count: " .. count .. "; element: " .. el)
+                    if count == 2 then
+                        goto_branch = el
+                    end
+                    count = count + 1
                 end
-                count = count + 1
+
+                local cmd = {
+                    "git",
+                    "-C",
+                    id,
+                    "switch",
+                    goto_branch,
+                }
+
+                wez.log_info "running:"
+                wez.log_info(cmd)
+                local success, stdout, _ = wez.run_child_process(cmd)
             end
-
-            local cmd = {
-                "git",
-                "-C",
-                id,
-                "switch",
-                goto_branch,
-            }
-
-            wez.log_info "running:"
-            wez.log_info(cmd)
-            local success, stdout, _ = wez.run_child_process(cmd)
             window:perform_action(
                 act.SwitchToWorkspace({ name = id, spawn = { cwd = id } }),
                 pane
