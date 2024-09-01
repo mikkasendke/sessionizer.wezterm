@@ -82,6 +82,7 @@ local function get_effective_config(config)
 
     local settings = defaults
     if not settings.command then
+        wez.log_info(make_default_command(settings.command_options))
         settings.command = make_default_command(settings.command_options)
     end
 
@@ -106,7 +107,6 @@ local function apply_commands(entries)
     for _, dir in pairs(paths) do
         local command = shallow_copy(config.command)
         command[#command + 1] = dir
-        wez.log_info(command)
 
         local success, stdout, _ = wez.run_child_process(command)
         if not success then
