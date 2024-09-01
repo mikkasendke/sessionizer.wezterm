@@ -126,6 +126,8 @@ local function apply_commands(entries)
             table.insert(entries, { id = id, label = label })
         end
     end
+    wez.log_info("entires:")
+    wez.log_info(entries)
     return entries
 end
 
