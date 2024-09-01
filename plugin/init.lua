@@ -56,17 +56,7 @@ local function make_default_command(options)
         command[#command + 1] = v
     end
 
-
-    return {
-        "fd",
-        "-HI",
-        "-td",
-        "^.git$",
-        "--max-depth=16",
-        "--prune",
-        "--format",
-        "{//}",
-    }
+    return command
 end
 
 local function get_effective_config(config)
@@ -89,12 +79,13 @@ local function get_effective_config(config)
     for k, v in pairs(config) do
         defaults[k] = v
     end
+
     local settings = defaults
     if not settings.command then
         settings.command = make_default_command(settings.command_options)
     end
 
-    return defaults
+    return settings
 end
 
 local function shallow_copy(t)
