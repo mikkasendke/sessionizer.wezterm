@@ -114,7 +114,7 @@ local function add_entry(entries, position, id, label)
             "pager.branch=false",
             "branch",
             "-l",
-            "--format=\"%(refname:short)\"",
+            "--format=%(refname:short)",
         }
         local success, stdout, _ = wez.run_child_process(list_branches_command)
         if not success then
