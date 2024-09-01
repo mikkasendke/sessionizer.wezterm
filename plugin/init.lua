@@ -215,14 +215,17 @@ local function make_input_selector(entries)
             -- if current_workspace == id then return end
 
             set_most_recent_workspace(current_workspace)
+
             local count = 1
             local goto_branch = ""
+            wez.log_info("label: " .. label)
             for el in label:gmatch "[^\n]+" do
                 if count == 2 then
                     goto_branch = el
                 end
                 count = count + 1
             end
+
             local cmd = {
                 "git",
                 "-C",
