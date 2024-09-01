@@ -60,9 +60,9 @@ local function make_default_command(options)
 end
 
 local function get_effective_config(config)
+    wez.log_info "apply"
     local defaults = {
         paths = {},
-        command = {},
         title = "Sessionzer",
         show_default = true,
         show_most_recent = true,
