@@ -96,7 +96,7 @@ To customize further there is `sessionizer.config` the following is the default 
 {
     paths = {},
     command = {
-        -- this is populated based on command_options it
+        -- this is populated based on command_options it (Note that if you set this command_options will be ignored)
         -- effectively looks like the following
         -- "fd",
         -- "-Hs",
@@ -116,7 +116,7 @@ To customize further there is `sessionizer.config` the following is the default 
     fuzzy = true,
     additional_directories = {},
     show_additional_before_paths = false,
-    command_options = {
+    command_options = { -- ignored if command is set
         include_submodules = false,
         max_depth = 16,
         format = "{//}",
