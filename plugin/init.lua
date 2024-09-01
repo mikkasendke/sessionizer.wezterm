@@ -122,6 +122,7 @@ local function add_entry(entries, position, id, label)
         end
 
         for branch in stdout:gmatch "[^\n]+" do
+            wez.log_info(branch)
             table.insert(entries, position, {
                 id = id,
                 label = label .. " " .. branch,
