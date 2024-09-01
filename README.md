@@ -122,6 +122,7 @@ To customize further there is `sessionizer.config` the following is the default 
         format = "{//}",
         exclude = { "node_modules" } -- Note that this can also just be a string
     },
+    experimental_branches = false,
 }
 ```
 Right now the directory to search is just appended to the command that is listed found in `sessionizer.config.command`
