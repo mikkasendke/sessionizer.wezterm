@@ -108,6 +108,8 @@ local function add_entry(entries, position, id, label)
     if git then
         local list_branches_command = {
             "git",
+            "-C",
+            id,
             "-c",
             "pager.branch=false",
             "branch",
