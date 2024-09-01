@@ -126,8 +126,7 @@ local function apply_commands(entries)
             table.insert(entries, { id = id, label = label })
         end
     end
-    wez.log_info("entires:")
-    wez.log_info(entries)
+
     return entries
 end
 
@@ -143,7 +142,7 @@ local function apply_configured(entries)
         if config.show_additional_before_paths then
             table.insert(entries, 1, { id = dir, label = dir, })
         else
-            table.insert(entries, #entries + 1, { id = dir, label = dir, })
+            table.insert(entries, #entries or 0 + 1, { id = dir, label = dir, })
         end
     end
 
