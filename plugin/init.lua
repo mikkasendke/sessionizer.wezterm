@@ -181,8 +181,7 @@ local function apply_configured(entries)
     if config.show_most_recent and
         wez.GLOBAL.sessionzer and
         wez.GLOBAL.sessionzer.most_recent_workspace then
-        add_entry(entries, 1, wez.GLOBAL.sessionzer.most_recent_workspace.id,
-            wez.GLOBAL.sessionzer.most_recent_workspace.label)
+        table.insert(entries, 1, wez.GLOBAL.sessionzer.most_recent_workspace)
     end
     if config.show_default then
         table.insert(entries, 1, { id = "default", label = "Default", })
