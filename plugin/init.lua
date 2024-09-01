@@ -30,7 +30,7 @@ end
 
 
 local function make_default_command(options)
-    wez.info(options)
+    wez.log_info(options)
     local command = {
         "fd",
         "-Hs",
