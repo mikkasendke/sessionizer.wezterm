@@ -30,7 +30,6 @@ end
 
 
 local function make_default_command(options)
-    wez.log_info "I was called"
     local command = {
         "fd",
         "-Hs",
@@ -53,6 +52,8 @@ local function make_default_command(options)
         command[#command + 1] = v
     end
 
+    wez.log_info "returning:"
+    wez.log_info(command)
     return command
 end
 
