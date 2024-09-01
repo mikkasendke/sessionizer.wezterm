@@ -103,6 +103,32 @@ local function shallow_copy(t)
     return dest
 end
 
+local function add_entry(entries, position, id, label)
+    local git = true
+    if git then
+        local list_branches_command = {
+            "git",
+            "-c",
+            "pager.branch=false",
+            "branch",
+            "-l",
+            "--format=\"%(refname:short)\"",
+        }
+        local success, stdout, _ = wez.run_child_process(list_branches_command)
+        if not success then
+            wez.log_info("Sessionzer: Could not list git repositories.")
+        end
+
+        for branch in stdout:gmatch "[^\n]+" do
+            table.insert(entries, position, {
+                id = id,
+                label = label .. " " .. branch,
+            })
+        end
+    end
+    table.insert(entries, position, { id = id, label = label, })
+end
+
 local function apply_commands(entries)
     local config = get_effective_config(plugin.config)
     local paths = config.paths
@@ -123,13 +149,14 @@ local function apply_commands(entries)
         for path in stdout:gmatch "[^\n]+" do
             local id = path
             local label = path
-            table.insert(entries, { id = id, label = label })
+            add_entry(entries, 1, id, label)
         end
         ::continue::
     end
 
     return entries
 end
+
 
 local function apply_configured(entries)
     local config = get_effective_config(plugin.config)
@@ -141,16 +168,17 @@ local function apply_configured(entries)
 
     for _, dir in pairs(custom_dirs) do
         if config.show_additional_before_paths then
-            table.insert(entries, 1, { id = dir, label = dir, })
+            add_entry(entries, 1, dir, dir)
         else
-            table.insert(entries, #entries + 1, { id = dir, label = dir, })
+            add_entry(entries, #entries + 1, dir, dir)
         end
     end
 
     if config.show_most_recent and
         wez.GLOBAL.sessionzer and
         wez.GLOBAL.sessionzer.most_recent_workspace then
-        table.insert(entries, 1, wez.GLOBAL.sessionzer.most_recent_workspace)
+        add_entry(entries, 1, wez.GLOBAL.sessionzer.most_recent_workspace.id,
+            wez.GLOBAL.sessionzer.most_recent_workspace.label)
     end
     if config.show_default then
         table.insert(entries, 1, { id = "default", label = "Default", })
@@ -178,13 +206,26 @@ local function make_input_selector(entries)
         title = config.title,
         choices = entries,
         fuzzy = config.fuzzy,
-        action = wez.action_callback(function(window, pane, id, _)
+        action = wez.action_callback(function(window, pane, id, label)
             if not id then return end
 
             local current_workspace = wez.mux.get_active_workspace()
-            if current_workspace == id then return end
+            -- if current_workspace == id then return end
 
             set_most_recent_workspace(current_workspace)
+            local count = 1
+            local goto_branch = ""
+            for el in label:gmatch "[^\n]+" do
+                if count == 2 then
+                    goto_branch = el
+                end
+                count = count + 1
+            end
+            local success, stdout, _ = wez.run_child_process {
+                "git",
+                "switch",
+                goto_branch,
+            }
             window:perform_action(
                 act.SwitchToWorkspace({ name = id, spawn = { cwd = id } }),
                 pane
