@@ -117,7 +117,7 @@ local function apply_commands(entries)
         local success, stdout, _ = wez.run_child_process(command)
         if not success then
             wez.log_info("Sessionzer: error while running specified command.")
-            return
+            goto continue
         end
 
         for path in stdout:gmatch "[^\n]+" do
@@ -125,14 +125,13 @@ local function apply_commands(entries)
             local label = path
             table.insert(entries, { id = id, label = label })
         end
+        ::continue::
     end
 
     return entries
 end
 
 local function apply_configured(entries)
-    wez.log_info "WE GET:"
-    wez.log_info(entries)
     local config = get_effective_config(plugin.config)
 
     local custom_dirs = config.additional_directories
