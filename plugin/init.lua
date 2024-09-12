@@ -1,10 +1,25 @@
 local wez = require "wezterm"
 local act = wez.action
 
+local function get_plugin_dir()
+    for _, plugin in ipairs(wez.plugin.list()) do
+        if plugin.url:find "mikkasendke/sessionizer.wezterm" then return plugin.plugin_dir end
+    end
+    return false
+end
+
+local plugin_dir = get_plugin_dir()
+
+local path_separator = package.config:sub(1, 1) == "\\" and "\\" or "/"
+package.path = package.path
+    .. ";"
+    .. plugin_dir
+    .. path_separator
+    .. "plugin"
+    .. path_separator
+    .. "?.lua"
+
 local config = require "config"
-
-
-package.path = package.path .. ""
 
 
 local function set_most_recent_workspace(current_workspace)
