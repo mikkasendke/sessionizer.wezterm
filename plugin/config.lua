@@ -6,13 +6,13 @@ local function get_command(config)
         "-Hs",
         "^.git$",
         "-td",
-        "--max-depth=" .. config.max_depth,
+        "--max-depth=" .. config.max_depth[1],
         "--prune",
         "--format",
-        config.format,
+        config.format[1],
     }
 
-    if config.include_submodules then
+    if config.include_submodules[1] then
         command[#command + 1] = "-tf"
     end
 
@@ -28,19 +28,19 @@ local config = {}
 
 config.default_config = {
     paths = {},
-    title = "Sessionzer",
-    show_default = true,
-    show_most_recent = true,
-    fuzzy = true,
+    title = { "Sessionzer" },
+    show_default = { true },
+    show_most_recent = { true },
+    fuzzy = { true },
     additional_directories = {},
-    show_additional_before_paths = false,
+    show_additional_before_paths = { false },
     command_options = {
-        include_submodules = false,
-        max_depth = 16,
-        format = "{//}",
+        include_submodules = { false },
+        max_depth = { 16 },
+        format = { "{//}" },
         exclude = { "node_modules" }
     },
-    experimental_branches = false,
+    experimental_branches = { false },
 }
 
 config.get_effective_config = function(user_config)

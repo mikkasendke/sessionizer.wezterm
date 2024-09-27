@@ -4,7 +4,7 @@ local config = require "config"
 local helpers = require "table_helpers"
 
 local function add_entry(cfg, entries, position, id, label)
-    if cfg.experimental_branches then
+    if cfg.experimental_branches[1] then
         local list_branches_command = {
             "git",
             "-C",

@@ -8,13 +8,13 @@ local function on_selection(cfg, window, pane, id, label)
     if not id then return end
 
     local current_workspace = wez.mux.get_active_workspace()
-    if not cfg.experimental_branches then
+    if not cfg.experimental_branches[1] then
         if current_workspace == id then return end
     end
 
     require "history".set_most_recent_workspace(current_workspace)
 
-    if cfg.experimental_branches then
+    if cfg.experimental_branches[1] then
         local count = 1
         local goto_branch = ""
         for el in label:gmatch "%S+" do
@@ -46,9 +46,9 @@ end
 
 input_selector.get = function(cfg, entries)
     return act.InputSelector {
-        title = cfg.title,
+        title = cfg.title[1],
         choices = entries,
-        fuzzy = cfg.fuzzy,
+        fuzzy = cfg.fuzzy[1],
         action = wez.action_callback(helpers.curry1of5(on_selection)(cfg))
     }
 end
