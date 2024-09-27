@@ -1,9 +1,6 @@
 local wez = require "wezterm"
 local act = wez.action
 
-local config = require "config"
-local history = require "history"
-
 -- NOTE: First we add our path to the package.path because we want to do requires easily
 local function get_plugin_dir()
     for _, plugin in ipairs(wez.plugin.list()) do
@@ -22,6 +19,9 @@ package.path = package.path
     .. "plugin"
     .. path_separator
     .. "?.lua"
+
+local config = require "config"
+local history = require "history"
 
 
 local plugin = {}
