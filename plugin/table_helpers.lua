@@ -19,4 +19,13 @@ helpers.merge_tables = function(t1, t2)
     end
 end
 
+helpers.curry1of5 = function(f)
+    return function(a)
+        return function(b, c, d, e)
+            return f(a, b, c, d, e)
+        end
+    end
+end
+
+
 return helpers

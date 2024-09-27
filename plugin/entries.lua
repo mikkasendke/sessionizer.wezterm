@@ -3,8 +3,7 @@ local wez = require "wezterm"
 local config = require "config"
 local helpers = require "table_helpers"
 
-local function add_entry(user_config, entries, position, id, label)
-    local cfg = config.get_effective_config(user_config)
+local function add_entry(cfg, entries, position, id, label)
     if cfg.experimental_branches then
         local list_branches_command = {
             "git",
@@ -32,9 +31,7 @@ local function add_entry(user_config, entries, position, id, label)
     table.insert(entries, position, { id = id, label = label, })
 end
 
-local function apply_configured(current_entries, user_config)
-    local cfg = config.get_effective_config(user_config)
-
+local function apply_configured(current_entries, cfg)
     local custom_dirs = cfg.additional_directories
     if type(custom_dirs) == "string" then
         custom_dirs = { custom_dirs }
@@ -42,9 +39,9 @@ local function apply_configured(current_entries, user_config)
 
     for _, dir in pairs(custom_dirs) do
         if cfg.show_additional_before_paths then
-            add_entry(user_config, current_entries, 1, dir, dir)
+            add_entry(cfg, current_entries, 1, dir, dir)
         else
-            add_entry(user_config, current_entries, #current_entries + 1, dir, dir)
+            add_entry(cfg, current_entries, #current_entries + 1, dir, dir)
         end
     end
 
@@ -60,8 +57,7 @@ local function apply_configured(current_entries, user_config)
     return current_entries
 end
 
-local function apply_commands(current_entries, user_config)
-    local cfg = config.get_effective_config(user_config)
+local function apply_commands(current_entries, cfg)
     local paths = cfg.paths
     if type(paths) == "string" then
         paths = { paths }
@@ -80,7 +76,7 @@ local function apply_commands(current_entries, user_config)
         for path in stdout:gmatch "[^\n]+" do
             local id = path
             local label = path
-            add_entry(user_config, current_entries, 1, id, label)
+            add_entry(cfg, current_entries, 1, id, label)
         end
         ::continue::
     end
@@ -90,8 +86,8 @@ end
 
 local entries = {}
 
-entries.get_entries = function(user_config)
-    return apply_configured(apply_commands({}, user_config), user_config)
+entries.get_entries = function(cfg)
+    return apply_configured(apply_commands({}, cfg), cfg)
 end
 
 return entries

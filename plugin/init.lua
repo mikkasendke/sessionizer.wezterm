@@ -19,8 +19,9 @@ package.path = package.path
     .. path_separator
     .. "?.lua"
 
-local config = require "config"
 
+local config = require "config"
+local helpers = require "table_helpers"
 
 local function set_most_recent_workspace(current_workspace)
     if not wez.GLOBAL.sessionzer then
@@ -35,9 +36,8 @@ end
 local plugin = {}
 plugin.config = { command_options = { exclude = {}, }, }
 
-local function on_selection(window, pane, id, label)
+local function on_selection(cfg, window, pane, id, label)
     if not id then return end
-    local cfg = config.get_effective_config(plugin.config)
 
     local current_workspace = wez.mux.get_active_workspace()
     if not cfg.experimental_branches then
@@ -76,13 +76,12 @@ local function on_selection(window, pane, id, label)
     )
 end
 
-local function make_input_selector(entries)
-    local cfg = config.get_effective_config(plugin.config)
+local function make_input_selector(cfg, entries)
     return act.InputSelector {
         title = cfg.title,
         choices = entries,
         fuzzy = cfg.fuzzy,
-        action = wez.action_callback(on_selection)
+        action = wez.action_callback(helpers.curry1of5(on_selection)(cfg))
     }
 end
 
@@ -91,8 +90,10 @@ plugin.apply_to_config = function(user_config, disable_default_binds)
 end
 
 plugin.show = wez.action_callback(function(window, pane)
-    local entries = require "entries".get_entries(plugin.config)
-    local input_selector = make_input_selector(entries)
+    local cfg = config.get_effective_config(plugin.config)
+
+    local entries = require "entries".get_entries(cfg)
+    local input_selector = make_input_selector(cfg, entries)
     window:perform_action(input_selector, pane)
 end)
 
