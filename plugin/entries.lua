@@ -33,9 +33,6 @@ end
 
 local function apply_configured(current_entries, cfg)
     local custom_dirs = cfg.additional_directories
-    if type(custom_dirs) == "string" then
-        custom_dirs = { custom_dirs }
-    end
 
     for _, dir in pairs(custom_dirs) do
         if cfg.show_additional_before_paths then
@@ -59,9 +56,6 @@ end
 
 local function apply_commands(current_entries, cfg)
     local paths = cfg.paths
-    if type(paths) == "string" then
-        paths = { paths }
-    end
 
     for _, dir in pairs(paths) do
         local command = helpers.shallow_copy(cfg.command)

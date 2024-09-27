@@ -26,7 +26,7 @@ local history = require "history"
 
 local plugin = {}
 
-plugin.config = { command_options = { exclude = {}, }, } -- NOTE: unfortunetly necessary for now
+plugin.config = require "table_helpers".automagic_table()
 
 plugin.apply_to_config = function(user_config, disable_default_binds)
     require "bindings".apply_binds(plugin, user_config, disable_default_binds) -- FIX: This does mutate args which is kinda bad

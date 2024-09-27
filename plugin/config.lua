@@ -16,10 +16,6 @@ local function get_command(config)
         command[#command + 1] = "-tf"
     end
 
-    if type(config.exclude) == "string" then
-        config.exclude = { config.exclude }
-    end
-
     for _, v in ipairs(config.exclude) do
         command[#command + 1] = "-E"
         command[#command + 1] = v -- v must be a string
