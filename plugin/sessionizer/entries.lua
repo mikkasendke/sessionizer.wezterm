@@ -1,7 +1,7 @@
 local wez = require "wezterm"
 
-local config = require "config"
-local helpers = require "table_helpers"
+local config = require "sessionizer.config"
+local helpers = require "sessionizer.table_helpers"
 
 local function add_entry(cfg, entries, position, id, label)
     if cfg.experimental_branches then
