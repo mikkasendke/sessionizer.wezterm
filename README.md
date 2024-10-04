@@ -1,12 +1,15 @@
 # sessionizer.wezterm
-A simple sessionizer for wezterm inspired by a discussion started by [@keturiosakys](https://github.com/keturiosakys) at https://github.com/wez/wezterm/discussions/4796 and originally inspired by ThePrimeagen's tmux-sessionizer.
+A simple sessionizer for wezterm inspired by a discussion started by [@keturiosakys](https://github.com/keturiosakys) at https://github.com/wez/wezterm/discussions/4796 and originally inspired by ThePrimeagen's tmux-sessionizer. It helps you switch between wezterm workspaces more easily.
 
 ## Requirements
-To use the default command [`fd`](https://github.com/sharkdp/fd) is required
+To use the default command [`fd`](https://github.com/sharkdp/fd) is required.
 
 ## Usage
-`⚠️ note that this is WIP`
-To install `sessionizer.wezterm` just add the following two lines to your wezterm.lua
+### Installation
+> [!WARNING]
+> This is a WIP and not very fleshed out yet, so things might change
+
+To install `sessionizer.wezterm` just add the following two lines __after your config.keys__ to your wezterm.lua
 ```lua
 local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
 sessionizer.apply_to_config(config)
@@ -15,9 +18,6 @@ sessionizer.apply_to_config(config)
 This will enable the following key binds:
  * `ALT+s` show the sessionizer
  * `ALT+m` switch to the most recently selected workspace
-
-
-(This only will apply correctly for now if you call `apply_to_config` after you define your own config.keys)
 
 Now you need to add the path(s) you want the sessionizer to operate on. You can do this
 by adding your path(s) to `sessionizer.config` like so
@@ -34,23 +34,24 @@ sessionizer.config = {
     }
 }
 ```
-The config is shown more in-depth further down
+> [!NOTE]
+> The config is shown more in-depth further down.
 
-
-NOTE: you have to have something like the following in your configuration so the above snippet will work.
-```lua
-local wezterm = require "wezterm"
-
-local config = {}
-
-if wezterm.config_builder then
-    config = wezterm.config_builder()
-end
-
--- HERE YOUR CONFIG (FOR EXAMPLE THE TWO LINE CONFIG FOR sessionizer.wezterm ABOVE)
-
-return config
-```
+> [!IMPORTANT]
+> You have to have something like the following in your configuration for the snippet above to work.
+> ```lua
+> local wezterm = require "wezterm"
+> 
+> local config = {}
+> 
+> if wezterm.config_builder then
+>     config = wezterm.config_builder()
+> end
+> 
+> -- HERE YOUR CONFIG (FOR EXAMPLE THE TWO LINE CONFIG FOR sessionizer.wezterm ABOVE)
+> 
+> return config
+> ```
 
 ### Customization
 You can disable the default bindings by passing an additional true to the `apply_to_config` function like so
