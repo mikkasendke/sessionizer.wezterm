@@ -1,4 +1,4 @@
-local helpers = require "table_helpers"
+local helpers = require "sessionizer.table_helpers"
 
 local function get_command(config)
     local command = {

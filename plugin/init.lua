@@ -2,26 +2,10 @@ local wez = require "wezterm"
 local act = wez.action
 
 -- NOTE: First we add our path to the package.path because we want to do requires easily
-local function get_plugin_dir()
-    for _, plugin in ipairs(wez.plugin.list()) do
-        if plugin.url:find "mikkasendke/sessionizer.wezterm" then return plugin.plugin_dir end
-    end
-    return false
-end
+package.path = package.path .. ";" .. (select(2, ...):gsub("init.lua$", "?.lua"))
 
-local plugin_dir = get_plugin_dir()
-
-local path_separator = package.config:sub(1, 1) == "\\" and "\\" or "/"
-package.path = package.path
-    .. ";"
-    .. plugin_dir
-    .. path_separator
-    .. "plugin"
-    .. path_separator
-    .. "?.lua"
-
-local config = require "config"
-local history = require "history"
+local config = require "sessionizer.config"
+local history = require "sessionizer.history"
 
 
 local plugin = {}
@@ -29,14 +13,14 @@ local plugin = {}
 plugin.config = { command_options = { exclude = {}, }, } -- NOTE: unfortunetly necessary for now
 
 plugin.apply_to_config = function(user_config, disable_default_binds)
-    require "bindings".apply_binds(plugin, user_config, disable_default_binds) -- FIX: This does mutate args which is kinda bad
+    require "sessionizer.bindings".apply_binds(plugin, user_config, disable_default_binds) -- FIX: This does mutate args which is kinda bad
 end
 
 plugin.show = wez.action_callback(function(window, pane)
     local cfg = config.get_effective_config(plugin.config)
-    local entries = require "entries".get_entries(cfg)
+    local entries = require "sessionizer.entries".get_entries(cfg)
 
-    window:perform_action(require "input_selector".get(cfg, entries), pane)
+    window:perform_action(require "sessionizer.input_selector".get(cfg, entries), pane)
 end)
 
 plugin.switch_to_most_recent = wez.action_callback(function(window, pane)

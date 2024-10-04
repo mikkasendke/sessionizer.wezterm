@@ -1,6 +1,6 @@
 local wez = require "wezterm"
 local act = wez.action
-local helpers = require "table_helpers"
+local helpers = require "sessionizer.table_helpers"
 
 local input_selector = {}
 
@@ -12,7 +12,7 @@ local function on_selection(cfg, window, pane, id, label)
         if current_workspace == id then return end
     end
 
-    require "history".set_most_recent_workspace(current_workspace)
+    require "sessionizer.history".set_most_recent_workspace(current_workspace)
 
     if cfg.experimental_branches then
         local count = 1
