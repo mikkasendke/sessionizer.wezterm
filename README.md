@@ -1,5 +1,5 @@
 # sessionizer.wezterm
-A simple sessionizer for wezterm inspired by a discussion started by [@keturiosakys](https://github.com/keturiosakys) at https://github.com/wez/wezterm/discussions/4796 and originally inspired by ThePrimeagen's tmux-sessionizer. It helps you switch between wezterm workspaces more easily.
+A simple sessionizer for wezterm inspired by a discussion started by [@keturiosakys](https://github.com/keturiosakys) at https://github.com/wez/wezterm/discussions/4796 and originally inspired by ThePrimeagen's tmux-sessionizer. It helps you switch between wezterm workspaces (especially git repositories) more easily.
 
 ## Requirements
 To use the default command [`fd`](https://github.com/sharkdp/fd) is required.
