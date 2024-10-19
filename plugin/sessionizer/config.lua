@@ -38,6 +38,7 @@ config.default_config = {
     fuzzy = true,
     additional_directories = {},
     show_additional_before_paths = false,
+    description = "Select a workspace: ",
     command_options = {
         include_submodules = false,
         max_depth = 16,

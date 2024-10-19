@@ -49,7 +49,9 @@ input_selector.get = function(cfg, entries)
         title = cfg.title,
         choices = entries,
         fuzzy = cfg.fuzzy,
-        action = wez.action_callback(helpers.curry1of5(on_selection)(cfg))
+        action = wez.action_callback(helpers.curry1of5(on_selection)(cfg)),
+        description = cfg.description,
+        fuzzy_description = cfg.description,
     }
 end
 
