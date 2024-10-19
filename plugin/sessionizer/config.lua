@@ -1,26 +1,26 @@
 local helpers = require "sessionizer.table_helpers"
 
-local function get_command(config)
+local function get_command(command_options)
     local command = {
-        "fd",
+        command_options.fd_path,
         "-Hs",
         "^.git$",
         "-td",
-        "--max-depth=" .. config.max_depth,
+        "--max-depth=" .. command_options.max_depth,
         "--prune",
         "--format",
-        config.format,
+        command_options.format,
     }
 
-    if config.include_submodules then
+    if command_options.include_submodules then
         command[#command + 1] = "-tf"
     end
 
-    if type(config.exclude) == "string" then
-        config.exclude = { config.exclude }
+    if type(command_options.exclude) == "string" then
+        command_options.exclude = { command_options.exclude }
     end
 
-    for _, v in ipairs(config.exclude) do
+    for _, v in ipairs(command_options.exclude) do
         command[#command + 1] = "-E"
         command[#command + 1] = v -- v must be a string
     end
@@ -40,6 +40,7 @@ config.default_config = {
     show_additional_before_paths = false,
     description = "Select a workspace: ",
     command_options = {
+        fd_path = "fd",
         include_submodules = false,
         max_depth = 16,
         format = "{//}",
