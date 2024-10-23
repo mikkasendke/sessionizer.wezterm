@@ -17,11 +17,30 @@ end
 local show_identifier = "sessionizer.show"
 plugin.show = act.EmitEvent(show_identifier)
 wez.on(show_identifier, function(window, pane)
-    local cfg = config.get_effective_config(plugin.config)
-    local entries = require "sessionizer.entries".get_entries(cfg)
+    local entries = plugin.get_entries()
+
+    local i = 1
+    local function next()
+        local processor = plugin.entry_processors[i]
+        i = i + 1
+        if processor then
+            processor(entries, next)
+        end
+    end
+    next()
 
     plugin.display_entries(entries, window, pane)
 end)
+
+plugin.get_entries = function()
+    local cfg = config.get_effective_config(plugin.config)
+    return require "sessionizer.entries".get_entries(cfg)
+end
+
+plugin.entry_processors = {}
+plugin.use_entry_processor = function(f)
+    table.insert(plugin.entry_processors, f)
+end
 
 ---@param entries { id: string, label: string }
 plugin.display_entries = function(entries, window, pane)
