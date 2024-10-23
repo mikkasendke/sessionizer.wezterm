@@ -38,7 +38,7 @@ plugin.get_entries = function()
 end
 
 plugin.entry_processors = {}
-plugin.use_processor = function(f)
+plugin.use_entry_processor = function(f)
     table.insert(plugin.entry_processors, f)
 end
 
