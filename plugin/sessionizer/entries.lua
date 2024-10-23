@@ -67,9 +67,9 @@ local function apply_commands(current_entries, cfg)
         local command = helpers.shallow_copy(cfg.command)
         command[#command + 1] = dir
 
-        local success, stdout, _ = wez.run_child_process(command)
+        local success, stdout, stderr = wez.run_child_process(command)
         if not success then
-            wez.log_info("Sessionzer: error while running specified command.")
+            wez.log_info("Sessionzer: error while running specified command: " .. stderr)
             goto continue
         end
 
