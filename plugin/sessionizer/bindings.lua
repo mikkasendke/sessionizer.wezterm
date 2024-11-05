@@ -14,6 +14,11 @@ bindings.apply_binds = function(plugin, config, disable_default_binds)
         action = plugin.show
     })
     add_bind(config, {
+        key = "a",
+        mods = "ALT",
+        action = plugin.show_active
+    })
+    add_bind(config, {
         key = "m",
         mods = "ALT",
         action = plugin.switch_to_most_recent
