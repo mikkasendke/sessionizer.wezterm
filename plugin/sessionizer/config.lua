@@ -49,7 +49,9 @@ config.default_config = {
     experimental_branches = false,
 }
 
+---@return LegacyConfig
 config.get_effective_config = function(user_config)
+    -- require "wezterm".log_info("User: ", user_config)
     local merged = helpers.shallow_copy(config.default_config)
     helpers.merge_tables(merged, user_config)
     if merged.command then return merged end
