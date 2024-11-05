@@ -42,6 +42,21 @@ plugin.use_entry_processor = function(f)
     table.insert(plugin.entry_processors, f)
 end
 
+local show_active = "sessionizer.show-active"
+plugin.show_active = act.EmitEvent(show_active)
+wez.on(show_active, function(window, pane)
+    local active_workspaces = {}
+    local current = wez.mux.get_active_workspace()
+    for index, item in ipairs(wez.mux.get_workspace_names()) do
+        local label = item
+        if item == current then
+            label = label .. " (Current)"
+        end
+        table.insert(active_workspaces, index, { id = item, label = label })
+    end
+    plugin.display_entries(active_workspaces, window, pane)
+end)
+
 ---@param entries { id: string, label: string }
 plugin.display_entries = function(entries, window, pane)
     local cfg = config.get_effective_config(plugin.config)
