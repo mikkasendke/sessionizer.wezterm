@@ -2,19 +2,40 @@ local wez = require "wezterm"
 local helpers = require "sessionizer.table_helpers"
 local generator = {}
 
--- TODO: figure out fd path but still allow setting
--- FIX: do before release
-
+local found_fd = false
 ---@type FdOptions
 local default_options = {
-    "no path specified",
-    fd_path = "fd",
+    "no_path_specified",
+    fd_path = "", -- will be filled later, design feels kinda bad idk
     include_submodules = false,
     max_depth = 16,
     format = "{//}",
     exclude = { "node_modules" },
-    extra_args = {}
+    extra_args = {},
+    overwrite = {},
 }
+
+local is_windows = wez.target_triple == "x86_64-pc-windows-msvc"
+
+---@return string|nil
+local function get_fd_path_auto()
+    local command = {}
+    if is_windows then
+        command[#command + 1] = "where.exe"
+    else
+        command[#command + 1] = "which"
+    end
+    command[#command + 1] = "fd"
+
+    -- TODO: make error handling better (honestly for all run_child_process, I think they can panic)
+    local success, stdout, stderr = wez.run_child_process(command)
+    if not success then
+        wez.log_error("sessionizer.wezterm: failed to run command to find fd binary; command: ", command)
+        return
+    end
+
+    return stdout:gsub("\n$", "")
+end
 
 ---@param options FdOptionsPartial
 ---@return FdOptions
@@ -27,6 +48,10 @@ local function normalize_options(options)
         options.extra_args = { options.exclude }
     end
 
+    if not found_fd then
+        default_options.fd_path = get_fd_path_auto() or "fd_not_found"
+        found_fd = true
+    end
     local merged = helpers.deep_copy(default_options)
     helpers.merge_tables(merged, options)
 
@@ -93,12 +118,12 @@ end
 
 ---@param options FdGeneratorFuncArgs
 ---@return Entry[]
-generator.search = function(options)
+local function search(options)
     if type(options) == "string" then
         options = { options }
     end
     local normalized_options = normalize_options(options)
-    local command = get_command(normalized_options)
+    local command = normalized_options.overwrite or get_command(normalized_options)
     return get_results(command)
 end
 
@@ -107,10 +132,9 @@ end
 generator.FdSearch = function(opts)
     ---@type GeneratorFunction -- TODO: check why without this it is function|GeneratorFunction
     return function()
-        local entries = generator.search(opts)
+        local entries = search(opts)
         return entries
     end
 end
-
 
 return generator

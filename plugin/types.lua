@@ -34,6 +34,7 @@
 ---@field format string?
 ---@field exclude string|string[]?
 ---@field extra_args string|string[]?
+---@field overwrite string[]?
 
 ---@class FdOptions
 ---@field [1] string
@@ -43,6 +44,7 @@
 ---@field format string
 ---@field exclude string[]
 ---@field extra_args string[]
+---@field overwrite string[]
 
 ---@alias FdGeneratorFuncArgs string|FdOptionsPartial -- NOTE: maybe later also string array
 

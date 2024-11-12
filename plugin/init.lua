@@ -1,8 +1,8 @@
 -- NOTE: First we add our path to the package.path because we want to do requires easily
 package.path = package.path .. ";" .. (select(2, ...):gsub("init.lua$", "?.lua"))
 
--- FIX: Needed before release
--- TODO: backwards compatibility
+-- TODO: remember to get a deduplication thing at some point
+-- TODO: inheritence of display_options
 
 local wez = require "wezterm"
 local act = wez.action
@@ -11,9 +11,15 @@ local helpers = require "sessionizer.table_helpers"
 
 local plugin = {}
 
-plugin.config = { command_options = { exclude = {}, }, } -- NOTE: unfortunetly necessary for now
+plugin.config = {}
+
+local function log_backwards_compatability_message()
+    wez.log_error "sessionzer.wezterm: sessionzer.wezterm broke backwards compatibility - it is easy to migrate though"
+    wez.log_info "sessionzer.wezterm: Look up the new README on github, in short your config.paths are now elements of FdSearch elements in spec and config.additional_directories are just paths in the spec"
+end
 
 plugin.apply_to_config = function(user_config, disable_default_binds)
+    if plugin.config.paths or plugin.config.additional_directories then log_backwards_compatability_message() end
     require "sessionizer.bindings".apply_binds(plugin, user_config, disable_default_binds)
 end
 
@@ -110,11 +116,9 @@ end
 plugin.spec = {
 }
 
----@type GeneratorFunction
----@param opts FdGeneratorFuncArgs
-plugin.FdSearch = function(opts)
-    require "sessionizer.generators.fd".FdSearch(opts)
-end
+-- NOTE: just top leveling those built-in generators
+plugin.FdSearch = require "sessionizer.generators.fd".FdSearch
+plugin.AllActiveWorkspaces = require "sessionizer.generators.all_active_sessions".AllActiveWorkspaces
 
 ---@param partial_options DisplayOptionsPartial
 ---@return DisplayOptions
