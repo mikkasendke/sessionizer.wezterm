@@ -71,6 +71,10 @@ local function on_selection(cfg, window, pane, id, label)
         }),
         new_pane
     )
+    local tab2 = window.spawn_tab { cwd = label }
+    tab2:set_title("terminals")
+    gui_window:perform_action(wez.action.SplitHorizontal { domain = "CurrentPaneDomain" })
+
 
     gui_window:perform_action(wez.action.ActivateTab(0), new_pane)
 end
