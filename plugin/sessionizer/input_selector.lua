@@ -38,10 +38,41 @@ local function on_selection(cfg, window, pane, id, label)
         local success, stdout, _ = wez.run_child_process(cmd)
     end
 
-    window:perform_action(
-        act.SwitchToWorkspace({ name = id, spawn = { cwd = id } }),
-        pane
+    --    window:perform_action(
+    --       act.SwitchToWorkspace({ name = id, spawn = { cwd = id } }),
+    --      pane
+    -- )
+    local name = label:match("([^/]+)$")
+    local function has_value(tab, val)
+        for index, value in ipairs(tab) do
+            if value == val then
+                return true
+            end
+        end
+
+        return false
+    end
+    if has_value(wez.mux.get_workspace_names(), name) then
+        wez.mux.set_active_workspace(name)
+        return
+    end
+
+    local tab, new_pane, window = wez.mux.spawn_window({ workspace = name, cwd = label })
+    wez.mux.set_active_workspace(name)
+    tab:set_title("nvim")
+
+    new_pane:send_text("nvim .\n")
+
+    local gui_window = window:gui_window()
+
+    gui_window:perform_action(
+        wez.action.SpawnCommandInNewTab({
+            cwd = label,
+        }),
+        new_pane
     )
+
+    gui_window:perform_action(wez.action.ActivateTab(0), new_pane)
 end
 
 input_selector.get = function(cfg, entries)
