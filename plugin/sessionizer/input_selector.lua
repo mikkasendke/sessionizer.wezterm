@@ -59,7 +59,7 @@ local function on_selection(cfg, window, pane, id, label)
 
     local tab, new_pane, window = wez.mux.spawn_window({ workspace = name, cwd = label })
     wez.mux.set_active_workspace(name)
-    tab:set_title("nvim")
+    tab:set_title(name)
 
     new_pane:send_text("nvim .\n")
 
@@ -73,10 +73,10 @@ local function on_selection(cfg, window, pane, id, label)
     )
     local tab2 = window.spawn_tab { cwd = label }
     tab2:set_title("terminals")
-    gui_window:perform_action(wez.action.SplitHorizontal { domain = "CurrentPaneDomain" })
+    window:perform_action(wez.action.SplitHorizontal { domain = "CurrentPaneDomain" })
 
 
-    gui_window:perform_action(wez.action.ActivateTab(0), new_pane)
+    gui_window:perform_action(wez.action.ActivateTab(1), new_pane)
 end
 
 input_selector.get = function(cfg, entries)
