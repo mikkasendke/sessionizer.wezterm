@@ -77,7 +77,7 @@ end
 --- @param name string
 --- @param current_spec Spec
 --- @return Spec?
-local function find_subspec_with_name(name, current_spec) -- TODO: maybe go breadth first
+local function find_subspec_with_name(name, current_spec) -- TODO: maybe go breadth first (this actually might be fine because we just call the first appearence of the name that way)
     local result = nil
     if current_spec["name"] and current_spec["name"] == name then
         return current_spec
@@ -95,16 +95,28 @@ end
 ---@type integer
 local show_count = 0
 
----@param spec Spec|string|nil
+---@param spec Spec|string|nil -- NOTE: might be a string then it is interpreted as a name on plugin.spec
+---@param name string|nil
 ---@return unknown
-plugin.show = function(spec)
+plugin.show = function(spec, name)
     local unique_id = "sessionizer-show-" .. show_count
     show_count = show_count + 1
     wez.on(unique_id, function(window, pane)
         if type(spec) == "string" then
-            spec = find_subspec_with_name(spec, plugin.spec)
+            name = spec
+            spec = nil
         end
         spec = spec or plugin.spec
+
+        if name then
+            spec = find_subspec_with_name(name, spec)
+        end
+
+        if spec == nil then
+            -- NOTE: Now name ~= nil must hold as long as the user did not do plugin.spec = nil (but that's on them)
+            wez.log_error("sessionzer.wezterm: spec with name \"" .. name .. "\" not found.")
+            return
+        end
 
         local entries = get_processed_entries_from_spec(spec) or {}
         plugin.display_entries(entries, window, pane, spec["display_options"])
