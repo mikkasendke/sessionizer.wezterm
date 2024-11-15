@@ -1,6 +1,7 @@
 local wez = require "wezterm"
 local generator = {}
 
+-- TODO: Add option to attach (Current) to current workspace
 local default_options = {
     show_current_workspace = true,
     show_default_workspace = true,

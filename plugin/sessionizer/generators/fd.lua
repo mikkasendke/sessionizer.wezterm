@@ -119,11 +119,16 @@ end
 ---@param options FdGeneratorFuncArgs
 ---@return Entry[]
 local function search(options)
+    -- local next = next PERF: maybe more efficient to local it idk
     if type(options) == "string" then
         options = { options }
     end
     local normalized_options = normalize_options(options)
-    local command = normalized_options.overwrite or get_command(normalized_options)
+    local command = normalized_options.overwrite
+    if rawequal(next(command), nil) then
+        command = get_command(normalized_options)
+    end
+    get_command(normalized_options)
     return get_results(command)
 end
 
