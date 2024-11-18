@@ -14,7 +14,8 @@ local function on_selection(window, pane, id, label)
 
     local current_workspace = wez.mux.get_active_workspace()
 
-    require "sessionizer.history".set_most_recent_workspace(current_workspace)
+    -- require "sessionizer.history".set_most_recent_workspace({ label = label, id = id })
+    require "sessionizer.history".set_most_recent_workspace({ label = current_workspace, id = current_workspace })
 
     window:perform_action(
         act.SwitchToWorkspace({ name = id, spawn = { cwd = id } }),

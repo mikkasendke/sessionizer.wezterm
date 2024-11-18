@@ -158,9 +158,12 @@ plugin.switch_to_most_recent = act.EmitEvent(show_most_recent_identifier)
 wez.on(show_most_recent_identifier, function(window, pane)
     local previous_workspace = wez.mux.get_active_workspace()
     window:perform_action(act.SwitchToWorkspace(
-        history.get_most_recent_workspace()
+        {
+            name = history.get_most_recent_workspace().id,
+            spawn = { cwd = history.get_most_recent_workspace().id }
+        }
     ), pane)
-    history.set_most_recent_workspace(previous_workspace)
+    history.set_most_recent_workspace({ label = previous_workspace, id = previous_workspace })
 end)
 
 return plugin
