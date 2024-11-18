@@ -13,13 +13,8 @@ local plugin = {}
 
 plugin.config = {}
 
-local function log_backwards_compatability_message()
-    wez.log_error "sessionzer.wezterm: sessionzer.wezterm broke backwards compatibility - it is easy to migrate though"
-    wez.log_info "sessionzer.wezterm: Look up the new README on github, in short your config.paths are now elements of FdSearch elements in spec and config.additional_directories are just paths in the spec"
-end
 
 plugin.apply_to_config = function(user_config, disable_default_binds)
-    if plugin.config.paths or plugin.config.additional_directories then log_backwards_compatability_message() end
     require "sessionizer.bindings".apply_binds(plugin, user_config, disable_default_binds)
 end
 
