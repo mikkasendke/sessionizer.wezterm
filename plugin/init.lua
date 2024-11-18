@@ -140,7 +140,7 @@ local function normalize_options(partial_options)
         description = "Select a workspace: ",
         show_default_workspace = true,
         show_most_recent_workspace = true,
-        fuzzy = true,
+        always_fuzzy = true,
     }
 
     helpers.merge_tables(defaults, partial_options)

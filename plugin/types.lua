@@ -15,14 +15,14 @@
 ---@field description string
 ---@field show_default_workspace boolean
 ---@field show_most_recent_workspace boolean
----@field fuzzy boolean
+---@field always_fuzzy boolean
 
 ---@class DisplayOptionsPartialInner
 ---@field title string?
 ---@field description string?
 ---@field show_default_workspace boolean?
 ---@field show_most_recent_workspace boolean?
----@field fuzzy boolean?
+---@field always_fuzzy boolean?
 
 ---@alias DisplayOptionsPartial DisplayOptionsPartialInner?
 

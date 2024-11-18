@@ -28,7 +28,7 @@ input_selector.get = function(options, entries)
     return act.InputSelector {
         title = options.title,
         choices = entries,
-        fuzzy = options.fuzzy,
+        fuzzy = options.always_fuzzy,
         action = wez.action_callback(on_selection),
         description = options.description,
         fuzzy_description = options.description,
