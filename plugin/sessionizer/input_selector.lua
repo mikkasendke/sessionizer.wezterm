@@ -25,6 +25,13 @@ end
 ---@param options DisplayOptions
 ---@param entries Entry[]
 input_selector.get = function(options, entries)
+    if options.show_most_recent_workspace then
+        local most_recent = require "sessionizer.history".get_most_recent_workspace()
+        if most_recent then table.insert(entries, 1, most_recent) end
+    end
+    if options.show_default_workspace then
+        table.insert(entries, 1, { label = "Default", id = "default" })
+    end
     return act.InputSelector {
         title = options.title,
         choices = entries,
