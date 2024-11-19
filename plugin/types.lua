@@ -10,21 +10,21 @@
 
 ---@alias Spec (string|Entry|GeneratorFunction|Spec)[] and maybe a processors key in there and maybe a name key in there and a key display_options of type DisplayOptionsPartial
 
----@class DisplayOptions
+---@class SpecOptions
 ---@field title string
 ---@field description string
 ---@field show_default_workspace boolean
 ---@field show_most_recent_workspace boolean
 ---@field always_fuzzy boolean
 
----@class DisplayOptionsPartialInner
+---@class SpecOptionsPartialInner
 ---@field title string?
 ---@field description string?
 ---@field show_default_workspace boolean?
 ---@field show_most_recent_workspace boolean?
 ---@field always_fuzzy boolean?
 
----@alias DisplayOptionsPartial DisplayOptionsPartialInner?
+---@alias SpecOptionsPartial SpecOptionsPartialInner?
 
 ---@class FdOptionsPartial
 ---@field [1] string -- NOTE: maybe here also later string[] perhaps

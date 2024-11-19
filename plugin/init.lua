@@ -2,7 +2,7 @@
 package.path = package.path .. ";" .. (select(2, ...):gsub("init.lua$", "?.lua"))
 
 -- TODO: remember to get a deduplication thing at some point
--- TODO: inheritence of display_options
+-- TODO: inheritence of options
 
 local wez = require "wezterm"
 local act = wez.action
@@ -42,7 +42,7 @@ local function get_processed_entries_from_spec(spec)
     local result = {}
     for k, value in pairs(spec) do
         -- TODO: Consider just continue if k is a string maybe idk
-        if k == "processors" or k == "processor" or k == "display_options" or k == "name" then
+        if k == "processors" or k == "processor" or k == "options" or k == "name" then
             goto continue
         end
 
@@ -114,7 +114,7 @@ plugin.show = function(spec, name)
         end
 
         local entries = get_processed_entries_from_spec(spec) or {}
-        plugin.display_entries(entries, window, pane, spec["display_options"])
+        plugin.display_entries(entries, window, pane, spec["options"])
     end)
     return act.EmitEvent(unique_id)
 end
@@ -127,8 +127,8 @@ plugin.spec = {
 plugin.FdSearch = require "sessionizer.generators.fd".FdSearch
 plugin.AllActiveWorkspaces = require "sessionizer.generators.all_active_sessions".AllActiveWorkspaces
 
----@param partial_options DisplayOptionsPartial
----@return DisplayOptions
+---@param partial_options SpecOptionsPartial
+---@return SpecOptions
 local function normalize_options(partial_options)
     local defaults = {
         title = "Sessionzer",
@@ -145,7 +145,7 @@ end
 ---@param entries Entry[]
 ---@param window unknown
 ---@param pane unknown
----@param partial_options DisplayOptionsPartial
+---@param partial_options SpecOptionsPartial
 plugin.display_entries = function(entries, window, pane, partial_options)
     local options = normalize_options(partial_options)
     window:perform_action(require "sessionizer.input_selector".get(options, entries), pane)

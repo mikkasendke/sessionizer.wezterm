@@ -10,18 +10,18 @@ M.convert_to_spec = function(sessionizer)
         ---@type LegacyConfig
         local config = sessionizer.config
 
-        ---@type DisplayOptions
-        local display_options = {}
+        ---@type SpecOptions
+        local options = {}
 
-        display_options.title = config.title or "Sessionzer"
-        display_options.description = config.description or "Select a workspace: "
-        display_options.always_fuzzy = config.fuzzy == nil and true or
+        options.title = config.title or "Sessionzer"
+        options.description = config.description or "Select a workspace: "
+        options.always_fuzzy = config.fuzzy == nil and true or
             config
             .fuzzy -- NOTE: here the second config.fuzzy can not be nil
-        display_options.show_default_workspace = config.show_default == nil and true or config.show_default
-        display_options.show_most_recent_workspace = config.show_most_recent == nil and true or config.show_most_recent
+        options.show_default_workspace = config.show_default == nil and true or config.show_default
+        options.show_most_recent_workspace = config.show_most_recent == nil and true or config.show_most_recent
 
-        spec.display_options = display_options
+        spec.options = options
 
         ---@type FdOptions
         local fd_options = {}

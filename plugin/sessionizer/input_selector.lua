@@ -23,7 +23,7 @@ local function on_selection(window, pane, id, label)
     )
 end
 
----@param options DisplayOptions
+---@param options SpecOptions
 ---@param entries Entry[]
 input_selector.get = function(options, entries)
     if options.show_most_recent_workspace then
