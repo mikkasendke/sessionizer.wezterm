@@ -9,7 +9,7 @@ local input_selector = {}
 ---@param pane unknown
 ---@param id string?
 ---@param label string
-local function on_selection(window, pane, id, label)
+input_selector.on_selection_switch_workspace = function(window, pane, id, label)
     if not id then return end
 
     local current_workspace = wez.mux.get_active_workspace()
@@ -37,7 +37,7 @@ input_selector.get = function(options, entries)
         title = options.title,
         choices = entries,
         fuzzy = options.always_fuzzy,
-        action = wez.action_callback(on_selection),
+        action = wez.action_callback(options.callback),
         description = options.description,
         fuzzy_description = options.description,
     }

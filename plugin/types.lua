@@ -8,7 +8,7 @@
 ---@class ProcessorFunc
 ---@field _call fun(entries: Entry[], next: fun())
 
----@alias Spec (string|Entry|GeneratorFunction|Spec)[] and maybe a processors key in there and maybe a name key in there and a key display_options of type DisplayOptionsPartial
+---@alias Spec (string|Entry|GeneratorFunction|Spec)[] and maybe a processors key in there and maybe a name key in there and a key options of type SpecOptionsPartial
 
 ---@class SpecOptions
 ---@field title string
@@ -16,6 +16,7 @@
 ---@field show_default_workspace boolean
 ---@field show_most_recent_workspace boolean
 ---@field always_fuzzy boolean
+---@field callback weztermActionIdk
 
 ---@class SpecOptionsPartialInner
 ---@field title string?
@@ -23,6 +24,7 @@
 ---@field show_default_workspace boolean?
 ---@field show_most_recent_workspace boolean?
 ---@field always_fuzzy boolean?
+---@field callback weztermActionIdk?
 
 ---@alias SpecOptionsPartial SpecOptionsPartialInner?
 

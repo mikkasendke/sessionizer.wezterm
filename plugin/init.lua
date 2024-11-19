@@ -136,6 +136,7 @@ local function normalize_options(partial_options)
         show_default_workspace = true,
         show_most_recent_workspace = true,
         always_fuzzy = true,
+        callback = require "sessionizer.input_selector".on_selection_switch_workspace
     }
 
     helpers.merge_tables(defaults, partial_options)
