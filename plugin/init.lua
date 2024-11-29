@@ -13,10 +13,10 @@ local plugin = {}
 
 plugin.config = {}
 
-
 plugin.apply_to_config = function(user_config, disable_default_binds)
     require "sessionizer.bindings".apply_binds(plugin, user_config, disable_default_binds)
 end
+
 
 ---@param processors ProcessorFunc[]
 ---@param entries Entry[]
@@ -133,8 +133,6 @@ local function normalize_options(partial_options)
     local defaults = {
         title = "Sessionzer",
         description = "Select a workspace: ",
-        show_default_workspace = true,
-        show_most_recent_workspace = true,
         always_fuzzy = true,
         callback = require "sessionizer.input_selector".on_selection_switch_workspace
     }

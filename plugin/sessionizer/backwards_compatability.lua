@@ -17,8 +17,8 @@ M.convert_to_spec = function(sessionizer)
         options.description = config.description or "Select a workspace: "
         options.always_fuzzy = config.fuzzy == nil and true or
             config
-            .fuzzy -- NOTE: here the second config.fuzzy can not be nil
-        options.show_default_workspace = config.show_default == nil and true or config.show_default
+            .fuzzy                                                                                  -- NOTE: here the second config.fuzzy can not be nil
+        options.show_default_workspace = config.show_default == nil and true or config.show_default -- TODO: FIX THAT
         options.show_most_recent_workspace = config.show_most_recent == nil and true or config.show_most_recent
 
         spec.options = options
