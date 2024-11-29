@@ -13,16 +13,12 @@
 ---@class SpecOptions
 ---@field title string
 ---@field description string
----@field show_default_workspace boolean
----@field show_most_recent_workspace boolean
 ---@field always_fuzzy boolean
 ---@field callback weztermActionIdk
 
 ---@class SpecOptionsPartialInner
 ---@field title string?
 ---@field description string?
----@field show_default_workspace boolean?
----@field show_most_recent_workspace boolean?
 ---@field always_fuzzy boolean?
 ---@field callback weztermActionIdk?
 
