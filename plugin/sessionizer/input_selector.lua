@@ -30,7 +30,7 @@ input_selector.get = function(options, entries)
         title = options.title,
         choices = entries,
         fuzzy = options.always_fuzzy,
-        action = wez.action_callback(options.callback),
+        action = wezterm.action_callback(options.callback),
         description = options.description,
         fuzzy_description = options.description,
     }
