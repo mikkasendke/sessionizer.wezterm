@@ -124,8 +124,15 @@ plugin.spec = {
 }
 
 -- NOTE: just top leveling those built-in generators
-plugin.FdSearch = require "sessionizer.generators.fd".FdSearch
-plugin.AllActiveWorkspaces = require "sessionizer.generators.all_active_sessions".AllActiveWorkspaces
+plugin.builtin = require "sessionizer.generators.index"
+plugin.helpers = {}
+plugin.helpers.for_each_entry = function(f)
+    return function(entries)
+        for _, entry in pairs(entries) do
+            f(entry)
+        end
+    end
+end
 
 ---@param partial_options SpecOptionsPartial
 ---@return SpecOptions
