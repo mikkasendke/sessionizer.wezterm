@@ -4,8 +4,8 @@ package.path = package.path .. ";" .. (select(2, ...):gsub("init.lua$", "?.lua")
 -- TODO: remember to get a deduplication thing at some point
 -- TODO: inheritence of options
 
-local wez = require "wezterm"
-local act = wez.action
+local wezterm = require "wezterm"
+local act = wezterm.action
 local history = require "sessionizer.history"
 local helpers = require "sessionizer.table_helpers"
 
@@ -96,7 +96,7 @@ local show_count = 0
 plugin.show = function(spec, name)
     local unique_id = "sessionizer-show-" .. show_count
     show_count = show_count + 1
-    wez.on(unique_id, function(window, pane)
+    wezterm.on(unique_id, function(window, pane)
         if type(spec) == "string" then
             name = spec
             spec = nil
@@ -109,7 +109,7 @@ plugin.show = function(spec, name)
 
         if spec == nil then
             -- NOTE: Now name ~= nil must hold as long as the user did not do plugin.spec = nil (but that's on them)
-            wez.log_error("sessionzer.wezterm: spec with name \"" .. name .. "\" not found.")
+            wezterm.log_error("sessionzer.wezterm: spec with name \"" .. name .. "\" not found.")
             return
         end
 
@@ -156,8 +156,8 @@ end
 -- maybe make it into a on_selection chain handler
 local show_most_recent_identifier = "sessionizer.switch-to-most-recent"
 plugin.switch_to_most_recent = act.EmitEvent(show_most_recent_identifier)
-wez.on(show_most_recent_identifier, function(window, pane)
-    local previous_workspace = wez.mux.get_active_workspace()
+wezterm.on(show_most_recent_identifier, function(window, pane)
+    local previous_workspace = wezterm.mux.get_active_workspace()
     window:perform_action(act.SwitchToWorkspace(
         {
             name = history.get_most_recent_workspace().id,

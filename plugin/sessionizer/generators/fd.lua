@@ -1,4 +1,4 @@
-local wez = require "wezterm"
+local wezterm = require "wezterm"
 local helpers = require "sessionizer.table_helpers"
 local generator = {}
 
@@ -15,7 +15,7 @@ local default_options = {
     overwrite = {},
 }
 
-local is_windows = wez.target_triple == "x86_64-pc-windows-msvc"
+local is_windows = wezterm.target_triple == "x86_64-pc-windows-msvc"
 
 ---@return string|nil
 local function get_fd_path_auto()
@@ -28,9 +28,9 @@ local function get_fd_path_auto()
     command[#command + 1] = "fd"
 
     -- TODO: make error handling better (honestly for all run_child_process, I think they can panic)
-    local success, stdout, stderr = wez.run_child_process(command)
+    local success, stdout, stderr = wezterm.run_child_process(command)
     if not success then
-        wez.log_error("sessionizer.wezterm: failed to run command to find fd binary; command: ", command)
+        wezterm.log_error("sessionizer.wezterm: failed to run command to find fd binary; command: ", command)
         return
     end
 
@@ -95,15 +95,15 @@ local function get_results(command)
     local result = {}
 
     ---@type boolean, string?, string?
-    local success, stdout, stderr = wez.run_child_process(command)
+    local success, stdout, stderr = wezterm.run_child_process(command)
     if not success then
-        wez.log_error("Command failed: ", command)
-        wez.log_error("stderr: ", stderr)
+        wezterm.log_error("Command failed: ", command)
+        wezterm.log_error("stderr: ", stderr)
         return {}
     end
 
     if not stdout then
-        wez.log_warn("stdout was nil in command: ", command)
+        wezterm.log_warn("stdout was nil in command: ", command)
         return {}
     end
 

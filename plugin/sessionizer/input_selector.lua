@@ -1,5 +1,5 @@
-local wez = require "wezterm"
-local act = wez.action
+local wezterm = require "wezterm"
+local act = wezterm.action
 
 local input_selector = {}
 
@@ -12,7 +12,7 @@ local input_selector = {}
 input_selector.on_selection_switch_workspace = function(window, pane, id, label)
     if not id then return end
 
-    local current_workspace = wez.mux.get_active_workspace()
+    local current_workspace = wezterm.mux.get_active_workspace()
 
     -- require "sessionizer.history".set_most_recent_workspace({ label = label, id = id })
     require "sessionizer.history".set_most_recent_workspace({ label = current_workspace, id = current_workspace })

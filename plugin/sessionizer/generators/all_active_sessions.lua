@@ -1,4 +1,4 @@
-local wez = require "wezterm"
+local wezterm = require "wezterm"
 local generator = {}
 
 -- TODO: Add option to attach (Current) to current workspace
@@ -16,9 +16,9 @@ local function get_all_active_workspaces(options)
     options = merged
 
     local workspaces = {}
-    local current = wez.mux.get_active_workspace()
-    local all = wez.mux.get_workspace_names()
-    for i, v in ipairs(all) do
+    local current = wezterm.mux.get_active_workspace()
+    local all = wezterm.mux.get_workspace_names()
+    for _, v in ipairs(all) do
         if options.filter_current and v == current then goto continue end
         if options.filter_default and v == "default" then goto continue end
         table.insert(workspaces, { label = v, id = v })
