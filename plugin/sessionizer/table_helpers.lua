@@ -1,5 +1,7 @@
 local helpers = {};
 
+---@param t table
+---@return table
 helpers.shallow_copy = function(t)
     local dest = {}
     for k, v in pairs(t) do
