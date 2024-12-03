@@ -11,12 +11,7 @@ bindings.apply_binds = function(plugin, config, disable_default_binds)
     add_bind(config, {
         key = "s",
         mods = "ALT",
-        action = plugin.show
-    })
-    add_bind(config, {
-        key = "a",
-        mods = "ALT",
-        action = plugin.show_active
+        action = plugin.show()
     })
     add_bind(config, {
         key = "m",
