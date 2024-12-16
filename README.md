@@ -37,7 +37,10 @@ sessionizer.config = {
 > [!NOTE]
 > The config is shown more in-depth further down.
 
+
+
 > [!IMPORTANT]
+> If you are on macOS and installed fd via homebrew you might have to set `sessionizer.config.command_options.fd_path` to the output of `which fd`
 > You have to have something like the following in your configuration for the snippet above to work.
 > ```lua
 > local wezterm = require "wezterm"
