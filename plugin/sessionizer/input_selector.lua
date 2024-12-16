@@ -1,42 +1,21 @@
-local wez = require "wezterm"
-local act = wez.action
-local helpers = require "sessionizer.table_helpers"
+local wezterm = require "wezterm"
+local act = wezterm.action
 
 local input_selector = {}
 
-local function on_selection(cfg, window, pane, id, label)
+-- TODO: on_selection injecible per entry and maybe a chain like the processors
+
+---@param window unknown
+---@param pane unknown
+---@param id string?
+---@param label string
+input_selector.on_selection_switch_workspace = function(window, pane, id, label)
     if not id then return end
 
-    local current_workspace = wez.mux.get_active_workspace()
-    if not cfg.experimental_branches then
-        if current_workspace == id then return end
-    end
+    local current_workspace = wezterm.mux.get_active_workspace()
 
-    require "sessionizer.history".set_most_recent_workspace(current_workspace)
-
-    if cfg.experimental_branches then
-        local count = 1
-        local goto_branch = ""
-        for el in label:gmatch "%S+" do
-            wez.log_info("count: " .. count .. "; element: " .. el)
-            if count == 2 then
-                goto_branch = el
-            end
-            count = count + 1
-        end
-
-        local cmd = {
-            "git",
-            "-C",
-            id,
-            "switch",
-            goto_branch,
-        }
-
-        wez.log_info "running:"
-        wez.log_info(cmd)
-        local success, stdout, _ = wez.run_child_process(cmd)
-    end
+    -- require "sessionizer.history".set_most_recent_workspace({ label = label, id = id })
+    require "sessionizer.history".set_most_recent_workspace({ label = current_workspace, id = current_workspace })
 
     window:perform_action(
         act.SwitchToWorkspace({ name = id, spawn = { cwd = id } }),
@@ -44,14 +23,16 @@ local function on_selection(cfg, window, pane, id, label)
     )
 end
 
-input_selector.get = function(cfg, entries)
+---@param options SpecOptions
+---@param entries Entry[]
+input_selector.get = function(options, entries)
     return act.InputSelector {
-        title = cfg.title,
+        title = options.title,
         choices = entries,
-        fuzzy = cfg.fuzzy,
-        action = wez.action_callback(helpers.curry1of5(on_selection)(cfg)),
-        description = cfg.description,
-        fuzzy_description = cfg.description,
+        fuzzy = options.always_fuzzy,
+        action = wezterm.action_callback(options.callback),
+        description = options.description,
+        fuzzy_description = options.description,
     }
 end
 

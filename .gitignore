@@ -1,2 +1,5 @@
 dev_config.lua
 issue_*.lua
+.direnv
+.envrc
+
