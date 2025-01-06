@@ -7,7 +7,7 @@ To use the default command [`fd`](https://github.com/sharkdp/fd) is required.
 ## Usage
 ### Installation
 > [!WARNING]
-> This is a WIP and not very fleshed out yet, so things might change
+> I wil soon merge the major_refactor branch into main and it will break the way configuration is done right now
 
 To install `sessionizer.wezterm` just add the following two lines __after your config.keys__ to your wezterm.lua
 ```lua
