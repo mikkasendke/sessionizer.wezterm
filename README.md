@@ -3,7 +3,6 @@ A sessionizer plugin for WezTerm inspired by a discussion started by [@keturiosa
 
 ## Optional dependencies (recommended)
 * There is a built-in `generator` that uses [`fd`](https://github.com/sharkdp/fd)
-* There is a built-in `generator` that uses [`zoxide`]([zoxide](https://github.com/ajeetdsouza/zoxide))
 
 > [!NOTE]
 > A `generator` is a function that _generates_ options for you to choose from
