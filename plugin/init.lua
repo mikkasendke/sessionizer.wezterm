@@ -59,8 +59,8 @@ local function get_processed_entries_from_spec(spec)
             end
         elseif type(value) == "function" then
             -- the only function we have exposed at the top is a generator function so let's call it
-            local gen_result = value()
-            helpers.append_each(result, gen_result)
+            local sub_result = get_processed_entries_from_spec(value())
+            helpers.append_each(result, sub_result)
         end
         ::continue::
     end

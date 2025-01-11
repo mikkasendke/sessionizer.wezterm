@@ -3,7 +3,7 @@
 ---@field id string
 
 ---@class GeneratorFunction
----@field __call fun(): Entry[]
+---@field __call fun(): Spec
 
 ---@class ProcessorFunc
 ---@field _call fun(entries: Entry[], next: fun())
