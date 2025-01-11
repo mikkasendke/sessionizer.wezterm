@@ -64,8 +64,13 @@ local function get_processed_entries_from_spec(spec)
         end
         ::continue::
     end
-    result = apply_processing(spec["processor"] and { spec["processor"] } or {}, result)
-    result = apply_processing(spec["processors"] or {}, result)
+    if spec["processors"] then
+        if type(spec["processors"]) == "function" then
+            result = apply_processing({ spec["processors"] }, result)
+        else
+            result = apply_processing(spec["processors"], result)
+        end
+    end
     return result
 end
 
