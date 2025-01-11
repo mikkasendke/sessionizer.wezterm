@@ -1,129 +1,89 @@
 # sessionizer.wezterm
-A simple sessionizer for wezterm inspired by a discussion started by [@keturiosakys](https://github.com/keturiosakys) at https://github.com/wez/wezterm/discussions/4796 and originally inspired by ThePrimeagen's tmux-sessionizer. It helps you switch between wezterm workspaces (especially git repositories) more easily.
+A sessionizer plugin for WezTerm inspired by a discussion started by [@keturiosakys](https://github.com/keturiosakys) over at https://github.com/wez/wezterm/discussions/4796 and originally inspired by ThePrimeagen's tmux-sessionizer. It helps you switch between (by default) WezTerm workspaces more easily.
 
-## Requirements
-To use the default command [`fd`](https://github.com/sharkdp/fd) is required.
+## Optional dependencies (recommended)
+* There is a built-in `generator` that uses [`fd`](https://github.com/sharkdp/fd)
 
-## Usage
-### Installation
-> [!WARNING]
-> This is a WIP and not very fleshed out yet, so things might change
+> [!NOTE]
+> A `generator` is a function that _generates_ options for you to choose from
 
-To install `sessionizer.wezterm` just add the following two lines __after your config.keys__ to your wezterm.lua
+## Installation
+To install `sessionizer.wezterm`, add the following two lines __after__ `config.keys` to your wezterm.lua
 ```lua
 local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
 sessionizer.apply_to_config(config)
 ```
-
-This will enable the following key binds:
- * `ALT+s` show the sessionizer
+You now have the following two keybinds, custom binds are expained further down.
+ * `ALT+s` show sessionizer
  * `ALT+m` switch to the most recently selected workspace
 
-Now you need to add the path(s) you want the sessionizer to operate on. You can do this
-by adding your path(s) to `sessionizer.config` like so
-```lua
-sessionizer.config = {
-    paths = "/path/to/my/directory" -- this could for example be "/home/<your_username>/dev"
-}
+But when you press `ALT+s` the list of options is still empty. Let's fix that!
 
--- you can also list multiple paths
-sessionizer.config = {
-    paths = {
-        "/this/is/path/one",
-        "/this/is/another/path",
-    }
+We call a table of options we can choose from a `spec`.
+
+By default `ALT+s` shows the sessionizer for the spec assigned to `sessionizer.spec` which right now is an empty table, so we set `sessionizer.spec` to something different.
+```lua
+sessionizer.spec = {
+    sessionizer.builtin.DefaultWorkspace {},
+    -- The things that go here produce entries an Entry has a label and an id, by default the id is assumed to be a path.
+    { label = "This is my home directory", id = wezterm.home_dir },
+    -- You can also just put a string and the label will be the same as the path.
+    "/home/mikka", -- this gives us { label = "/home/mikka", id = "/home/mikka" }
+
+    -- You can also put so called generator functions here they return a table of entries
+    -- There are some built-in generators like the return value of sessionizer.FdSearch
+    sessionizer.builtin.FdSearch "/home/mikka/dev", -- This will search for git repositories in the specified directory
+    -- But you can also put your own generator functions
+    function()
+        local entries = {}
+        for i = 1, 10, 1 do
+            table.insert(entries, { label = "Stub #" .. i, id = i } -- Note that i as the path for the workspace won't work 
+        end
+    end,
+    sessionizer.builtin.Zoxide, -- this exists too
 }
 ```
-> [!NOTE]
-> The config is shown more in-depth further down.
+This is a basic example, there are more things you can do with a spec, we will explore them properly further down.
 
-> [!IMPORTANT]
-> You have to have something like the following in your configuration for the snippet above to work.
-> ```lua
-> local wezterm = require "wezterm"
-> 
-> local config = {}
-> 
-> if wezterm.config_builder then
->     config = wezterm.config_builder()
-> end
-> 
-> -- HERE YOUR CONFIG (FOR EXAMPLE THE TWO LINE CONFIG FOR sessionizer.wezterm ABOVE)
-> 
-> return config
-> ```
+A spec can contain:
+* An Entry (like above this is a table with a label and an id)
+* A string (this will be a Entry with label and id set to the string)
+* Another spec (good for grouping processing/styiling)
+* A generator which is a function that returns a spec
+* A name which is a string that can be used to find a spec inside another spec
+* options which is a table that sets things like the title and description etc.
+* processors which is a function or table of functions that takes a table of entries and can modify them
 
-### Customization
+## Customization
+### Styling
+A spec is best styled by using processors and `wezterm.format`. A processor takes an array/table of Entry and a function calling the next processor.
+If you need just one processor use `<any spec>.processor` if you need multiple you can put them into `<any spec>.processors` which is a table of processors.
+The entry array you will get contains all entries generated by the spec you are in minus the entries a processor might have removed before.
+For example:
+
+```lua
+sessionizer.spec = {
+    {
+        sessionizer.builtin.AllActiveWorkspaces { show_current_workspace = true, show_default_workspace = false, },
+        processors = {
+            function(entries) -- this is a bit annoying if you don't need the context of other entries so just
+                              -- there is sessionizer.helpers.for_each_entry which is shown below
+                for _, entry in pairs(entries) do
+                    entry.label = wezterm.format {
+                        { Foreground = { Color = "#77ee88" } },
+                        { Text = entry.label }
+                    }
+                end
+            end,
+            sessionizer.helpers.for_each_entry(function(entry) entry.label = "active: " .. entry.label end),
+        },
+    },
+    sessionizer.builtin.Zoxide,
+    processor = sessionizer.helpers.for_each_entry(function(entry) entry.label = entry.label:gsub(wezterm.home_dir, "~") end)
+}
+```
+### Key binds
 You can disable the default bindings by passing an additional true to the `apply_to_config` function like so
 ```lua
 sessionizer.apply_to_config(config, true)
 ```
-
-You can bind the functions `sessionizer.wezterm` provides in your normal configuration. Here is an
-example:
-
-```lua
-local wezterm = require "wezterm"
-
-local config = {}
-
-if wezterm.config_builder then
-    config = wezterm.config_builder()
-end
-
-local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
-sessionizer.apply_to_config(config, true) -- disable default binds (right now you can also just not call this)
-
-sessionizer.config.paths = "/home/myuser/projects"
-
-config.keys = {
-    {
-        key = "w",
-        mods = "ALT|SHIFT",
-        action = sessionizer.show,
-    },
-    {
-        key = "r",
-        mods = "ALT|SHIFT",
-        action = sessionizer.switch_to_most_recent,
-    },
-}
-
-return config
-```
-
-To customize further there is `sessionizer.config` the following is the default configuration:
-```lua
-{
-    paths = {},
-    command = {
-        -- this is populated based on command_options it (Note that if you set this command_options will be ignored)
-        -- effectively looks like the following
-        -- "fd",
-        -- "-Hs",
-        -- "^.git$",
-        -- "-td",
-        -- "--max-depth=" .. command_options.max_depth,
-        -- "--prune",
-        -- "--format",
-        -- command_options.format,
-        -- Here any number of excludes for example
-        -- -E node_modules
-        -- -E another_directory_to_exclude
-    },
-    title = "Sessionzer",
-    show_default = true,
-    show_most_recent = true,
-    fuzzy = true,
-    additional_directories = {},
-    show_additional_before_paths = false,
-    command_options = { -- ignored if command is set
-        include_submodules = false,
-        max_depth = 16,
-        format = "{//}",
-        exclude = { "node_modules" } -- Note that this can also just be a string
-    },
-    experimental_branches = false,
-}
-```
-Right now the directory to search is just appended to the command that is listed found in `sessionizer.config.command`
