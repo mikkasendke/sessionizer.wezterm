@@ -46,15 +46,14 @@ sessionizer.spec = {
 ```
 This is a basic example, there are more things you can do with a spec, we will explore them properly further down.
 
-Here is a list of what you can put in a spec:
-* Another spec (good for grouping processing/styiling)
+A spec can contain:
 * An Entry (like above this is a table with a label and an id)
 * A string (this will be a Entry with label and id set to the string)
-* A generator which is a function that returns a table of entries so Entry[]
+* Another spec (good for grouping processing/styiling)
+* A generator which is a function that returns a spec
 * A name which is a string that can be used to find a spec inside another spec
 * options which is a table that sets things like the title and description etc.
-* processor which is a function used to mutate the entries generated (useful for styling)
-* processors which is a table of functions like processor
+* processors which is a function or table of functions that takes a table of entries and can modify them
 
 ## Customization
 ### Styling
