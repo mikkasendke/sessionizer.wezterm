@@ -1,4 +1,6 @@
 local wezterm = require "wezterm"
+local helpers = require "sessionizer.helpers.init"
+
 local generator = {}
 
 -- TODO: Add option to attach (Current) to current workspace
@@ -8,8 +10,8 @@ local default_options = {
 }
 
 local function get_all_active_workspaces(options)
-    local merged = require "sessionizer.table_helpers".deep_copy(default_options)
-    require "sessionizer.table_helpers".merge_tables(
+    local merged = helpers.table_utils.deep_copy(default_options)
+    helpers.table_utils.merge_tables(
         merged,
         options
     )

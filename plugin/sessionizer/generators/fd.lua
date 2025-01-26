@@ -1,5 +1,5 @@
 local wezterm = require "wezterm"
-local helpers = require "sessionizer.table_helpers"
+local helpers = require "sessionizer.helpers.init"
 local generator = {}
 
 local found_fd = false
@@ -40,7 +40,7 @@ end
 ---@param options FdOptionsPartial
 ---@return FdOptions
 local function normalize_options(options)
-    options = helpers.deep_copy(options)
+    options = helpers.table_utils.deep_copy(options)
     if type(options.exclude) == "string" then
         options.exclude = { options.exclude }
     end
@@ -52,8 +52,8 @@ local function normalize_options(options)
         default_options.fd_path = get_fd_path_auto() or "fd_not_found"
         found_fd = true
     end
-    local merged = helpers.deep_copy(default_options)
-    helpers.merge_tables(merged, options)
+    local merged = helpers.table_utils.deep_copy(default_options)
+    helpers.table_utils.merge_tables(merged, options)
 
     return merged
 end

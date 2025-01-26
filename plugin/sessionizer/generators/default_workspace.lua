@@ -1,3 +1,5 @@
+local helpers = require "sessionizer.helpers.init"
+
 local generator = {}
 
 ---@class DefaultWorkspaceOptions
@@ -16,13 +18,14 @@ local defaults = {
 ---@return GeneratorFunction
 generator.DefaultWorkspace = function(opts)
     ---@type DefaultWorkspaceOptions
-    local options = require "sessionizer.table_helpers".shallow_copy(defaults)
+    local options = helpers.table_utils.shallow_copy(defaults)
 
-    require "sessionizer.table_helpers".merge_tables(
+    helpers.table_utils.merge_tables(
         options,
         opts
     )
 
+    ---@type GeneratorFunction
     return function()
         return { { label = "Default", id = options.name_overwrite } }
     end

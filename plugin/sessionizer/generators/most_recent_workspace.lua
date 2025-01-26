@@ -4,7 +4,7 @@ local generator = {}
 
 generator.MostRecentWorkspace = function()
     return function()
-        return { history.get_most_recent_workspace() }
+        return { history.peek() }
     end
 end
 

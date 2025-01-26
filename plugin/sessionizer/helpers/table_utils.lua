@@ -39,22 +39,6 @@ helpers.merge_tables = function(t1, t2)
     end
 end
 
-helpers.curry1of5 = function(f)
-    return function(a)
-        return function(b, c, d, e)
-            return f(a, b, c, d, e)
-        end
-    end
-end
-
-helpers.curry = function(f)
-    return function(arg)
-        return function()
-            return f(arg)
-        end
-    end
-end
-
 ---@param target table
 ---@param source table
 helpers.append_each = function(target, source)
