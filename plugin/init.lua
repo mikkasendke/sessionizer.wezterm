@@ -5,8 +5,8 @@ package.path = package.path .. ";" .. (select(2, ...):gsub("init.lua$", "?.lua")
 -- TODO: inheritence of options
 
 local wezterm = require "wezterm"
-local act = wezterm.action
 local history = require "sessionizer.history"
+local helpers = require "sessionizer.helpers.init"
 
 local plugin = {}
 
@@ -14,7 +14,8 @@ plugin.generators = require "sessionizer.generators.init"
 plugin.helpers = require "sessionizer.helpers.init"
 plugin.actions = require "sessionizer.actions.init"
 
-plugin.config = {}
+---@type Spec
+plugin.spec = {}
 
 plugin.apply_to_config = function(user_config, disable_default_binds)
     require "sessionizer.bindings".apply_binds(plugin, user_config, disable_default_binds)
@@ -25,7 +26,7 @@ end
 ---@param entries Entry[]
 ---@return Entry[]
 local function apply_processing(processors, entries)
-    local result = plugin.helpers.table_utils.deep_copy(entries)
+    local result = helpers.table_utils.deep_copy(entries)
     local i = 1
     local function next()
         local processor = processors[i]
@@ -58,12 +59,12 @@ local function get_processed_entries_from_spec(spec)
             else
                 -- now if the config is right it must be a sub table so another spec so a recursive call
                 local sub_result = get_processed_entries_from_spec(value)
-                plugin.helpers.table_utils.append_each(result, sub_result)
+                helpers.table_utils.append_each(result, sub_result)
             end
         elseif type(value) == "function" then
             -- the only function we have exposed at the top is a generator function so let's call it
             local sub_result = get_processed_entries_from_spec(value())
-            plugin.helpers.table_utils.append_each(result, sub_result)
+            helpers.table_utils.append_each(result, sub_result)
         end
         ::continue::
     end
@@ -95,6 +96,23 @@ local function find_subspec_with_name(name, current_spec) -- TODO: maybe go brea
     return result
 end
 
+local function get_actual_spec(spec, name)
+    if type(spec) == "string" then
+        name = spec
+        spec = nil
+    end
+    spec = spec or plugin.spec
+    if name then
+        spec = find_subspec_with_name(name, spec)
+    end
+    if not spec then
+        wezterm.log_error("sessionizer.wezterm: spec with name \"" .. name .. "\" not found.")
+        return nil
+    end
+
+    return spec
+end
+
 ---@type integer
 local show_count = 0
 
@@ -106,67 +124,38 @@ plugin.show = function(spec, name)
     show_count = show_count + 1
 
     wezterm.on(unique_id, function(window, pane)
-        if type(spec) == "string" then
-            name = spec
-            spec = nil
-        end
-        spec = spec or plugin.spec
-
-        if name then
-            spec = find_subspec_with_name(name, spec)
-        end
-
-        if spec == nil then
-            wezterm.log_error("sessionzer.wezterm: spec with name \"" .. name .. "\" not found.")
-            return
-        end
+        spec = get_actual_spec(spec, name)
+        if not spec then return end
 
         local entries = get_processed_entries_from_spec(spec) or {}
         plugin.display_entries(entries, window, pane, spec["options"])
     end)
 
-    return act.EmitEvent(unique_id)
+    return wezterm.action.EmitEvent(unique_id)
 end
 
---- Default spec
----@type Spec
-plugin.spec = {
-}
 
 
----@param partial_options SpecOptionsPartial
----@return SpecOptions
-local function normalize_options(partial_options)
-    local defaults = {
-        title = "Sessionzer",
-        description = "Select a workspace: ",
-        always_fuzzy = true,
-        callback = plugin.actions.SwitchToWorkspace
-    }
-
-    plugin.helpers.table_utils.merge_tables(defaults, partial_options)
-    return defaults
-end
 
 ---@param entries Entry[]
 ---@param window unknown
 ---@param pane unknown
 ---@param partial_options SpecOptionsPartial
 plugin.display_entries = function(entries, window, pane, partial_options)
-    local options = normalize_options(partial_options)
+    local options = helpers.normalize_options(partial_options)
     window:perform_action(require "sessionizer.input_selector".get(options, entries), pane)
 end
 
 -- NOTE: This will eventually not really fit into the model (when we add domain extensions etc.)
 -- maybe make it into a on_selection chain handler
 local show_most_recent_identifier = "sessionizer.switch-to-most-recent"
-plugin.switch_to_most_recent = act.EmitEvent(show_most_recent_identifier)
+plugin.switch_to_most_recent = wezterm.action.EmitEvent(show_most_recent_identifier)
 wezterm.on(show_most_recent_identifier, function(window, pane)
     local current = wezterm.mux.get_active_workspace()
     local next = history.pop()
     if not next then return end
 
-    window:perform_action(act.SwitchToWorkspace(
+    window:perform_action(wezterm.action.SwitchToWorkspace(
         {
             name = next.id,
             spawn = { cwd = next.id }
