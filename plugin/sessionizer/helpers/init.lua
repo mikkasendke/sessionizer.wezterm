@@ -48,7 +48,6 @@ helpers.evaluate_spec = function(spec)
     ---@type Entry[]
     local result = {}
     for key, value in pairs(spec) do
-        -- TODO: Consider just continue if k is a string maybe idk
         if key == "processing" or key == "options" or key == "name" then
             goto continue
         end

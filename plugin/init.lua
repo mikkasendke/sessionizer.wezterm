@@ -21,7 +21,6 @@ plugin.apply_to_config = function(user_config, disable_default_binds)
     require "sessionizer.bindings".apply_binds(plugin, user_config, disable_default_binds)
 end
 
-
 ---@param spec Spec|string|nil
 ---@param name string|nil
 ---@return Spec?
