@@ -22,89 +22,16 @@ plugin.apply_to_config = function(user_config, disable_default_binds)
 end
 
 
----@param processors ProcessorFunc[]
----@param entries Entry[]
----@return Entry[]
-local function apply_processing(processors, entries)
-    local result = helpers.table_utils.deep_copy(entries)
-    local i = 1
-    local function next()
-        local processor = processors[i]
-        i = i + 1
-        if processor then
-            processor(result, next)
-        end
-    end
-    next()
-    return result
-end
-
----@param spec Spec
----@return Entry[]
-local function get_processed_entries_from_spec(spec)
-    ---@type Entry[]
-    local result = {}
-    for key, value in pairs(spec) do
-        -- TODO: Consider just continue if k is a string maybe idk
-        if key == "processing" or key == "options" or key == "name" then
-            goto continue
-        end
-
-        if type(value) == "string" then
-            table.insert(result, require "sessionizer.entries".make_entry(value, value))
-        elseif type(value) == "table" then
-            -- now it is either a raw entry or previously a generator table
-            if value.label then
-                table.insert(result, value)
-            else
-                -- now if the config is right it must be a sub table so another spec so a recursive call
-                local sub_result = get_processed_entries_from_spec(value)
-                helpers.table_utils.append_each(result, sub_result)
-            end
-        elseif type(value) == "function" then
-            -- the only function we have exposed at the top is a generator function so let's call it
-            local sub_result = get_processed_entries_from_spec(value())
-            helpers.table_utils.append_each(result, sub_result)
-        end
-        ::continue::
-    end
-    if spec["processing"] then
-        if type(spec["processing"]) == "function" then
-            result = apply_processing({ spec["processing"] }, result)
-        else
-            result = apply_processing(spec["processing"], result)
-        end
-    end
-    return result
-end
-
---- @param name string
---- @param current_spec Spec
---- @return Spec?
-local function find_subspec_with_name(name, current_spec) -- TODO: maybe go breadth first (this actually might be fine because we just call the first appearence of the name that way)
-    local result = nil
-    if current_spec["name"] and current_spec["name"] == name then
-        return current_spec
-    end
-
-    for _, v in pairs(current_spec) do
-        if type(v) == "table" then
-            result = find_subspec_with_name(name, v) or result
-        end
-    end
-
-    return result
-end
-
-local function get_actual_spec(spec, name)
+---@param spec Spec|string|nil
+---@param name string|nil
+---@return Spec?
+local function get_effective_spec(spec, name)
     if type(spec) == "string" then
         name = spec
         spec = nil
     end
     spec = spec or plugin.spec
-    if name then
-        spec = find_subspec_with_name(name, spec)
-    end
+    if name then spec = helpers.find_subspec_with_name_dfs(name, spec) end
     if not spec then
         wezterm.log_error("sessionizer.wezterm: spec with name \"" .. name .. "\" not found.")
         return nil
@@ -124,18 +51,15 @@ plugin.show = function(spec, name)
     show_count = show_count + 1
 
     wezterm.on(unique_id, function(window, pane)
-        spec = get_actual_spec(spec, name)
+        spec = get_effective_spec(spec, name)
         if not spec then return end
 
-        local entries = get_processed_entries_from_spec(spec) or {}
+        local entries = helpers.evaluate_spec(spec) or {}
         plugin.display_entries(entries, window, pane, spec["options"])
     end)
 
     return wezterm.action.EmitEvent(unique_id)
 end
-
-
-
 
 ---@param entries Entry[]
 ---@param window unknown
