@@ -4,8 +4,7 @@ end
 
 local bindings = {}
 
-bindings.apply_binds = function(plugin, config, disable_default_binds)
-    if disable_default_binds then return end
+bindings.apply_binds = function(plugin, config)
     config.keys = config.keys or {}
 
     add_bind(config, {

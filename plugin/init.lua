@@ -17,8 +17,8 @@ plugin.actions = require "sessionizer.actions.init"
 ---@type Spec
 plugin.spec = {}
 
-plugin.apply_to_config = function(user_config, disable_default_binds)
-    require "sessionizer.bindings".apply_binds(plugin, user_config, disable_default_binds)
+plugin.apply_to_config = function(user_config)
+    require "sessionizer.bindings".apply_binds(plugin, user_config)
 end
 
 ---@param spec Spec|string|nil
