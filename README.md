@@ -26,7 +26,7 @@ But when you press `ALT+s` the list of options is still empty. Let's fix that!
 ```lua
 local my_spec = {
     sessionizer.generators.DefaultWorkspace {},
-    sessionizer.generators.FdSearch wezterm.home_dir .. "/dev", -- NOTE: HERE YOUR PATH TO YOUR GIT REPOS
+    sessionizer.generators.FdSearch "/your/path/to/your/git/projects", -- NOTE: HERE YOUR PATH TO YOUR GIT REPOS (hint: maybe wezterm.home_dir is nice here too)
     processing = sessionizer.helpers.for_each_entry(function(entry)
         entry.label = entry.label:gsub(wezterm.home_dir, "~") -- this shortens paths
     end)
