@@ -18,6 +18,7 @@ sessionizer.apply_to_config(config)
 You now have the following two keybinds, custom binds are expained further down.
  * `ALT+s` show sessionizer
  * `ALT+m` switch to the most recently selected workspace
+Note: call sessionizer.apply_to_config(config, true) to disable default binds
 
 But when you press `ALT+s` the list of options is still empty. Let's fix that!
 
