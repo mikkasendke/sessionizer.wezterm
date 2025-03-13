@@ -13,12 +13,11 @@ A sessionizer plugin for WezTerm inspired by a discussion started by [@keturiosa
 To install `sessionizer.wezterm`, add the following two lines __after__ `config.keys` to your wezterm.lua
 ```lua
 local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
-sessionizer.apply_to_config(config)
+sessionizer.apply_to_config(config) -- NOTE: pass another argument with true to this to disable the default binds 
 ```
 You now have the following two keybinds, custom binds are expained further down.
  * `ALT+s` show sessionizer
  * `ALT+m` switch to the most recently selected workspace
-Note: call sessionizer.apply_to_config(config, true) to disable default binds
 
 But when you press `ALT+s` the list of options is still empty. Let's fix that!
 
