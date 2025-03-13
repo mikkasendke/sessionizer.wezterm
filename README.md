@@ -29,7 +29,8 @@ local my_spec = {
     sessionizer.generators.FdSearch wezterm.home_dir .. "/dev", -- NOTE: HERE YOUR PATH TO YOUR GIT REPOS
     processing = sessionizer.helpers.for_each_entry(function(entry)
         entry.label = entry.label:gsub(wezterm.home_dir, "~") -- this shortens paths
-end)
+    end)
+}
 ```
 Now either using default ALT+S binds
 ```lua
