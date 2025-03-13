@@ -21,32 +21,6 @@ You now have the following two keybinds, custom binds are expained further down.
 
 But when you press `ALT+s` the list of options is still empty. Let's fix that!
 
-We call a table of options we can choose from a `spec`.
-
-By default `ALT+s` shows the sessionizer for the spec assigned to `sessionizer.spec` which right now is an empty table, so we set `sessionizer.spec` to something different.
-```lua
-sessionizer.spec = {
-    sessionizer.generators.DefaultWorkspace {},
-    -- The things that go here produce entries an Entry has a label and an id, by default the id is assumed to be a path.
-    { label = "This is my home directory", id = wezterm.home_dir },
-    -- You can also just put a string and the label will be the same as the path.
-    "/home/mikka", -- this gives us { label = "/home/mikka", id = "/home/mikka" }
-
-    -- You can also put so called generator functions here they return a table of entries
-    -- There are some built-in generators like the return value of sessionizer.generators.FdSearch
-    sessionizer.generators.FdSearch "/home/mikka/dev", -- This will search for git repositories in the specified directory
-    -- But you can also put your own generator functions
-    function()
-        local entries = {}
-        for i = 1, 10, 1 do
-            table.insert(entries, { label = "Stub #" .. i, id = i }) -- Note that i as the path for the workspace won't work 
-        end
-        return entries -- Don't forget to return the entries!
-    end,
-}
-```
-This is a basic example, there are more things you can do with a spec, which we will explore further down.
-
 ## Just works tm config
 
 ```lua
@@ -73,6 +47,31 @@ table.insert(config.keys, {
 ```
 
 ## Understanding Specs
+
+We call a table of options we can choose from a `spec`.
+
+By default `ALT+s` shows the sessionizer for the spec assigned to `sessionizer.spec` which right now is an empty table, so we set `sessionizer.spec` to something different.
+```lua
+sessionizer.spec = {
+    sessionizer.generators.DefaultWorkspace {},
+    -- The things that go here produce entries an Entry has a label and an id, by default the id is assumed to be a path.
+    { label = "This is my home directory", id = wezterm.home_dir },
+    -- You can also just put a string and the label will be the same as the path.
+    "/home/mikka", -- this gives us { label = "/home/mikka", id = "/home/mikka" }
+
+    -- You can also put so called generator functions here they return a table of entries
+    -- There are some built-in generators like the return value of sessionizer.generators.FdSearch
+    sessionizer.generators.FdSearch "/home/mikka/dev", -- This will search for git repositories in the specified directory
+    -- But you can also put your own generator functions
+    function()
+        local entries = {}
+        for i = 1, 10, 1 do
+            table.insert(entries, { label = "Stub #" .. i, id = i }) -- Note that i as the path for the workspace won't work 
+        end
+        return entries -- Don't forget to return the entries!
+    end,
+}
+```
 
 A spec can contain:
 * Multiple Entries (like above this is a table with a label and an id)
