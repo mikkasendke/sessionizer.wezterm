@@ -14,9 +14,9 @@ schema_processor.evaluate_schema = function(schema)
         if type(value) == "string" then -- string i.e. shorthand for entry
             helpers.append_each({ { label = value, id = value } }, result)
         elseif type(value) == "table" then
-            if (value.label) then -- raw entry
+            if value.label and value.id then -- raw entry
                 helpers.append_each({ value }, result)
-            else                  -- has to be another schema
+            else                             -- has to be another schema
                 helpers.append_each(schema_processor.evaluate_schema(value), result)
             end
         elseif type(value) == "function" then -- so it is a generator
@@ -36,9 +36,7 @@ end
 ---@param schema Schema
 ---@return Schema
 schema_processor.complete_schema = function(schema)
-    if not schema then schema = {} end
-    if type(schema) ~= "table" then schema = { schema } end
-    if type(schema["processing"]) == "function" then schema["processing"] = { schema["processing"] } end
+    if type(schema.processing) == "function" then schema.processing = { schema.processing } end
 
     local defaults = {
         options = {
