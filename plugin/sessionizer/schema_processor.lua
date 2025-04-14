@@ -11,15 +11,15 @@ schema_processor.evaluate_schema = function(schema)
     for key, value in pairs(schema) do
         if key == "processing" or key == "options" then goto continue end
 
-        if type(value) == "string" then
+        if type(value) == "string" then -- string i.e. shorthand for entry
             helpers.append_each({ { label = value, id = value } }, result)
         elseif type(value) == "table" then
-            if (value.label) then
+            if (value.label) then -- raw entry
                 helpers.append_each({ value }, result)
-            else
+            else                  -- has to be another schema
                 helpers.append_each(schema_processor.evaluate_schema(value), result)
             end
-        elseif type(value) == "function" then
+        elseif type(value) == "function" then -- so it is a generator
             helpers.append_each(schema_processor.evaluate_schema(value()), result)
         end
 

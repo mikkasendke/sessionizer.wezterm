@@ -26,7 +26,6 @@ return {
     DefaultCallback = require "sessionizer.schema_processor".DefaultCallback, -- NOTE: maybe relocate this
 }
 
-
 ---@alias Schema SchemaScope|(PrimitiveElement)[]
 
 ---@class SchemaScope
