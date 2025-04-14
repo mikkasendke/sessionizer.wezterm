@@ -1,90 +1,47 @@
--- NOTE: First we add our path to the package.path because we want to do requires easily
 package.path = package.path .. ";" .. (select(2, ...):gsub("init.lua$", "?.lua"))
 
--- TODO: remember to get a deduplication thing at some point
--- TODO: inheritence of options
-
 local wezterm = require "wezterm"
-local history = require "sessionizer.history"
-local helpers = require "sessionizer.helpers.init"
+local schema_processor = require "sessionizer.schema_processor"
+local input_selector = require "sessionizer.input_selector"
+local uniqueEventCount = 0
 
-local plugin = {}
+return {
+    apply_to_config = function(config) end,
+    show = function(schema)
+        local uniqueEventId = "sessionizer-show-" .. uniqueEventCount
+        uniqueEventCount = uniqueEventCount + 1
 
-plugin.generators = require "sessionizer.generators.init"
-plugin.helpers = require "sessionizer.helpers.init"
-plugin.actions = require "sessionizer.actions.init"
+        wezterm.on(uniqueEventId, function(window, pane)
+            local entries = schema_processor.evaluate_schema(schema)
+            local options = schema_processor.complete_schema(schema).options
+            window:perform_action(input_selector.get_input_selector(options, entries), pane)
+        end)
+        return wezterm.action.EmitEvent(uniqueEventId)
+    end,
+    DefaultWorkspace = require "sessionizer.generators.default_workspace".DefaultWorkspace,
+    AllActiveWorkspaces = require "sessionizer.generators.all_active_workspaces".AllActiveWorkspaces,
+    FdSearch = require "sessionizer.generators.fd_search".FdSearch,
 
----@type Spec
-plugin.spec = {}
+    for_each_entry = require "sessionizer.helpers".for_each_entry,
+    DefaultCallback = require "sessionizer.schema_processor".DefaultCallback, -- NOTE: maybe relocate this
+}
 
-plugin.apply_to_config = function(user_config)
-    require "sessionizer.bindings".apply_binds(plugin, user_config)
-end
 
----@param spec Spec|string|nil
----@param name string|nil
----@return Spec?
-local function get_effective_spec(spec, name)
-    if type(spec) == "string" then
-        name = spec
-        spec = nil
-    end
-    spec = spec or plugin.spec
-    if name then spec = helpers.find_subspec_with_name_dfs(name, spec) end
-    if not spec then
-        wezterm.log_error("sessionizer.wezterm: spec with name \"" .. name .. "\" not found.")
-        return nil
-    end
+---@alias Schema SchemaScope|(PrimitiveElement)[]
 
-    return spec
-end
+---@class SchemaScope
+---@field options SchemaOptions
+---@field processing (fun(schema: Entry[]): Entry[])[]
+---@field [integer] Schema
 
----@type integer
-local show_count = 0
+---@class SchemaOptions
+---@field title string
+---@field prompt string
+---@field always_fuzzy boolean
+---@field callback fun(window, pane, id, label)
 
----@param spec Spec|string|nil -- NOTE: might be a string then it is interpreted as a name on plugin.spec
----@param name string|nil
----@return unknown
-plugin.show = function(spec, name)
-    local unique_id = "sessionizer-show-" .. show_count
-    show_count = show_count + 1
+---@alias PrimitiveElement Entry|string
 
-    wezterm.on(unique_id, function(window, pane)
-        spec = get_effective_spec(spec, name)
-        if not spec then return end
-
-        local entries = helpers.evaluate_spec(spec) or {}
-        plugin.display_entries(entries, window, pane, spec["options"])
-    end)
-
-    return wezterm.action.EmitEvent(unique_id)
-end
-
----@param entries Entry[]
----@param window unknown
----@param pane unknown
----@param partial_options SpecOptionsPartial
-plugin.display_entries = function(entries, window, pane, partial_options)
-    local options = helpers.normalize_options(partial_options)
-    window:perform_action(require "sessionizer.input_selector".get(options, entries), pane)
-end
-
--- NOTE: This will eventually not really fit into the model (when we add domain extensions etc.)
--- maybe make it into a on_selection chain handler
-local show_most_recent_identifier = "sessionizer.switch-to-most-recent"
-plugin.switch_to_most_recent = wezterm.action.EmitEvent(show_most_recent_identifier)
-wezterm.on(show_most_recent_identifier, function(window, pane)
-    local current = wezterm.mux.get_active_workspace()
-    local next = history.pop()
-    if not next then return end
-
-    window:perform_action(wezterm.action.SwitchToWorkspace(
-        {
-            name = next.id,
-            spawn = { cwd = next.id }
-        }
-    ), pane)
-    history.push(current)
-end)
-
-return plugin
+---@class Entry
+---@field id string
+---@field label string

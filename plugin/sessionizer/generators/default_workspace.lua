@@ -1,33 +1,22 @@
-local helpers = require "sessionizer.helpers.init"
+local helpers = require "sessionizer.helpers"
 
 local generator = {}
 
----@class DefaultWorkspaceOptions
----@field name_overwrite string
----
----@class DefaultWorkspaceOptionsPartial
----@field name_overwrite string?
+local function find(opts)
+    local default_options = {
+        id_overwrite = "default",
+        label_overwrite = "Default",
+    }
 
+    helpers.merge_tables(default_options, opts)
+    opts = default_options
 
----@type DefaultWorkspaceOptions
-local defaults = {
-    name_overwrite = "default"
-}
+    return { { label = opts.label_overwrite, id = opts.id_overwrite } }
+end
 
----@param opts DefaultWorkspaceOptionsPartial
----@return GeneratorFunction
 generator.DefaultWorkspace = function(opts)
-    ---@type DefaultWorkspaceOptions
-    local options = helpers.table_utils.shallow_copy(defaults)
-
-    helpers.table_utils.merge_tables(
-        options,
-        opts
-    )
-
-    ---@type GeneratorFunction
     return function()
-        return { { label = "Default", id = options.name_overwrite } }
+        return find(opts)
     end
 end
 
