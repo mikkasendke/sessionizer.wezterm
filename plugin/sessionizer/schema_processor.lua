@@ -26,7 +26,7 @@ schema_processor.evaluate_schema = function(schema)
         ::continue::
     end
 
-    for _, processor in ipairs(schema["processing"]) do
+    for _, processor in ipairs(schema.processing) do
         processor(result)
     end
 

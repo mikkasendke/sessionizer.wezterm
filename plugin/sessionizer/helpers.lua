@@ -1,7 +1,7 @@
 local helpers = {}
 
 helpers.append_each = function(source, destination)
-    for _, value in pairs(source) do
+    for _, value in ipairs(source) do
         table.insert(destination, value)
     end
 end
