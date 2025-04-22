@@ -1,350 +1,300 @@
-
 # sessionizer.wezterm
 
-A sessionizer plugin for WezTerm inspired by a discussion started by [@keturiosakys](https://github.com/keturiosakys) over at https://github.com/wez/wezterm/discussions/4796 and originally inspired by ThePrimeagen's tmux-sessionizer. It helps you switch between (by default) WezTerm workspaces more easily.
-
-## Optional dependencies (recommended)
-* There is a built-in `generator` that uses [`fd`](https://github.com/sharkdp/fd)
+A flexible sessionizer for WezTerm allwoing you to define custom menus to switch workspaces, open projects, or trigger other actions. It was originally inspired by [ThePrimeagen's tmux-sessionizer](https://github.com/theprimeagen/tmux-sessionizer).
 
 > [!NOTE]
-> A `generator` is a function that _generates_ options for you to choose from
+> If you're using the old way of configuring this plugin you might want to read the sections below and/or have a look at the migration example down below under [Advanced Examples](#advanced-examples).
 
 ## Installation
-To install `sessionizer.wezterm`, add the following two lines __after__ `config.keys` to your wezterm.lua
-```lua
-local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
-sessionizer.apply_to_config(config) -- NOTE: pass another argument with true to this to disable the default binds 
-```
-You now have the following two keybinds, custom binds are expained further down.
- * `ALT+s` show sessionizer
- * `ALT+m` switch to the most recently selected workspace
 
-But when you press `ALT+s` the list of options is still empty. Let's fix that!
+#### 1. Install Dependencies (Optional but reccommended)
+   Install [`fd`](https://github.com/sharkdp/fd): Only needed if you want to use the `FdSearch` _generator_ (This is usually used to get the paths to git repositories).
 
-## Just works tm config
+#### 2. Add to WezTerm Config
+   Add the following to your `wezterm.lua` file:
 
-```lua
-local my_spec = {
-    sessionizer.generators.DefaultWorkspace {},
-    sessionizer.generators.FdSearch "/your/path/to/your/git/projects", -- NOTE: HERE YOUR PATH TO YOUR GIT REPOS (hint: maybe wezterm.home_dir is nice here too)
-    processing = sessionizer.helpers.for_each_entry(function(entry)
-        entry.label = entry.label:gsub(wezterm.home_dir, "~") -- this shortens paths
-    end)
-}
-```
-Now either using default ALT+S binds
-```lua
-sessionizer.spec = my_spec
-```
-OR
-assign it yourself like this (or just in your config.keys table):
+   ```lua
+   local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
+   ```
 
-```lua
-table.insert(config.keys, {
-    key = "e" -- for example,
-    mods = "ALT",
-    action = sessionizer.show(my_spec)
-}
-```
+#### 3. Define a _Schema_
+   Create a table (called a Schema) defining the menu you want to see:
 
-## Understanding Specs
+   ```lua
+   local my_schema = {
+     { label = "Some project", id = "~/dev/project" }, -- Custom entry, label is what you see. By default id is used as the path for a workspace.
+     "Workspace 1",  -- Simple string entry, expands to { label = "Workspace 1", id = "Workspace 1" }
+     sessionizer.DefaultWorkspace {},
+     sessionizer.AllActiveWorkspaces {},
+     sessionizer.FdSearch "~/my_projects", -- Searches for git repos in ~/my_projects
+   }
+   ```
 
-We call a table of options we can choose from a `spec`.
+#### 4. Add a Keybinding
+Insert something like this into your config.keys table.
+   ```lua
+   config.keys = {
+     { key = "S", mods = "ALT", action = sessionizer.show(my_schema) },
+     -- ... other keybindings ...
+   }
+   ```
 
-By default `ALT+s` shows the sessionizer for the spec assigned to `sessionizer.spec` which right now is an empty table, so we set `sessionizer.spec` to something different.
-```lua
-sessionizer.spec = {
-    sessionizer.generators.DefaultWorkspace {},
-    -- The things that go here produce entries an Entry has a label and an id, by default the id is assumed to be a path.
-    { label = "This is my home directory", id = wezterm.home_dir },
-    -- You can also just put a string and the label will be the same as the path.
-    "/home/mikka", -- this gives us { label = "/home/mikka", id = "/home/mikka" }
+See [Advanced Examples](#advanced-examples) for more complex use cases.
 
-    -- You can also put so called generator functions here they return a table of entries
-    -- There are some built-in generators like the return value of sessionizer.generators.FdSearch
-    sessionizer.generators.FdSearch "/home/mikka/dev", -- This will search for git repositories in the specified directory
-    -- But you can also put your own generator functions
-    function()
-        local entries = {}
-        for i = 1, 10, 1 do
-            table.insert(entries, { label = "Stub #" .. i, id = i }) -- Note that i as the path for the workspace won't work 
+## Understanding Schemas
+
+A schema is a Lua table that defines what appears in your sessionizer menu and how it behaves. It tells the plugin what to display and what to do when an entry was selected.
+
+A schema can contain the following elements:
+
+1. **`options` (Table, Optional):** Controls the appearance and behavior of the menu. These are its fields:
+
+    | Name           | Type      | Default                        | Description                                                                                                                    |
+    | -------------- | --------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+    | `title`        | `string`  | `"Sessionizer"`                | The **window** title when the sessionizer is open.                                                                             |
+    | `prompt`       | `string`  | `"Select entry: "`             | The prompt text shown in the input area.                                                                                       |
+    | `always_fuzzy` | `boolean` | `true`                         | Whether to enable fuzzy finding always or only after typing /.                                                                 |
+    | `callback`     | `function`| `sessionizer.DefaultCallback`  | Function called when an entry is selected. Signature: `function(window, pane, id, label)`. Default switches to workspace `id` and creates one in the directory `id` if it does not already exist. |
+
+2. **Entries (Array Elements):** Define the items that appear in the menu. These can be a mix of:
+    * **String:** Shorthand for `{ label = value, id = value }`.
+        ```lua
+        "My Workspace"
+        ```
+    * **Table (Entry):** A table with `label` and `id` fields.
+        ```lua
+        { label = "WezTerm Config", id = "~/.config/wezterm" }
+        ```
+    * **Table (Schema):** Another schema table can be nested inside and its entries will be included (its `options` will be ignored though).
+    * **Function (Generator):** A function that returns a Schema. For example:
+        ```lua
+        function exampleGenerator()
+            local schema = {}
+            for i=1,10 do
+                table.insert(schema, { label = "Workspace " .. i, id = "this is workspace " .. i })
+            end
+            return schema
         end
-        return entries -- Don't forget to return the entries!
-    end,
-}
-```
+        -- or this:
+        -- sessionizer.AllActiveWorkspaces is a function that returns a generator,
+        -- it's useful to provide some options.
+        sessionizer.AllActiveWorkspaces { filter_default = true } 
+        ```
+        See [Built-in Generators](#built-in-generators) for some built-in generators and see [List of plugins that provide features
+](#list-of-plugins-that-provide-features) for other plugins that provide generators or integrate in another way.
 
-A spec can contain:
-* Multiple Entries (like above this is a table with a label and an id)
-* A string (this will be a Entry with label and id set to the string after evaluation)
-* Another spec (good for grouping processing/styling)
-* A generator which is a function that returns a spec
-* A name which is a string that can be used to find a spec inside another spec
-* options which is a table that sets things like the title and description etc.
-* processors which is a function or table of functions that takes a table of entries and can modify them
+3. **`processing` (Table | Function, Optional):** Function(s) to modify entries before they are used/displayed.
+    * Can be a function or table of functions.
+    * Each function modifies the `entries` array in-place.
+    * Useful for styling, filtering, or formatting entries.
+    * Example using the helper:  
+        ```lua
+        -- prepends 📁 to each entry
+        processing = sessionizer.for_each_entry(function(entry)
+          entry.label = "📁 " .. entry.label
+        end)
 
+        -- or:
+        processing = {
+            sessionizer.for_each_entry(function(entry) -- recolors labels and replaces the absolute path to the home directory with ~
+                entry.label = wezterm.format {
+                    { Foreground = { Color = "#cc99ff" } },
+                    { Text = entry.label:gsub(wezterm.home_dir, "~") },
+                }
+            end),
+            sessionizer.for_each_entry(function(entry) -- same as above
+              entry.label = "📁 " .. entry.label
+            end)
+        }
+        ```
+        See [Processing Entries](#processing-entries) for more info.
 ## Built-in Generators
 
-The plugin comes with several built-in generators:
+Generators create entries dynamically each time you open the sessionizer. They provide up-to-date lists of choices like current workspaces or project folders.
+Some commonly used ones are already built-in via functions that return a generator when passed options, we can call them generator factories.
 
-### DefaultWorkspace
-Creates an entry for the default workspace:
+### `sessionizer.DefaultWorkspace(opts)`
+Creates an entry for your default or home workspace.
 
+- **Options:** `{ label_overwrite, id_overwrite }`
+  - `label_overwrite` (string): Custom label for the entry (default: `"Default"`).
+  - `id_overwrite` (string): Custom id for the entry (default: `"default"`).
+
+_Example usage:_
 ```lua
-sessionizer.generators.DefaultWorkspace {
-    name_overwrite = "default" -- Optional, defaults to "default"
+sessionizer.DefaultWorkspace { label_overwrite = "🏠 Home", id_overwrite = "home_ws" }
+-- The id typically matches config.default_workspace in your wezterm config
+```
+
+### `sessionizer.AllActiveWorkspaces(opts)`
+Lists all currently active WezTerm workspaces.
+
+- **Options:** `{ filter_default, filter_current }`
+  - `filter_default` (boolean): Exclude the "default" workspace (default: `true`).
+  - `filter_current` (boolean): Exclude the currently active workspace (default: `true`).
+
+_Example usage:_
+```lua
+sessionizer.AllActiveWorkspaces {} -- Use defaults
+sessionizer.AllActiveWorkspaces { filter_default = false } -- Include "default"
+```
+
+### `sessionizer.FdSearch(opts | path_string)`
+Searches for directories (like projects) using `fd`. Requires the `fd` binary to be installed.
+
+- **Options:** Either a string (the path to search) or a table for advanced options.
+  - As a string: The search path.
+  - As a table:
+    - `[1]` (string, required): The base path to search within.
+    - `fd_path` (string): Path to the `fd` binary (auto-detected if omitted, use it for troubleshooting).
+    - `include_submodules` (boolean): Search git submodules too (default: `false`).
+    - `max_depth` (number): Maximum search depth (default: `16`).
+    - `format` (string): fd output format (default: `{//}`).
+    - `exclude` (table): List of patterns to exclude (default: `{ "node_modules" }`).
+    - `extra_args` (table): Additional raw arguments for `fd`.
+
+_Example usage:_
+```lua
+sessionizer.FdSearch(wezterm.home_dir .. "/dev") -- Simple path string
+sessionizer.FdSearch { -- Advanced options
+  wezterm.home_dir .. "/projects",
+  max_depth = 32,
+  include_submodules = true,
+  exclude = { "target" },
 }
 ```
 
-### MostRecentWorkspace
-Creates an entry for the most recently used workspace:
+## Processing Entries
+
+Use the `processing` key to modify entries after generation but before display. This is useful for formatting, filtering, or sorting entries.
+
+Example of shortening home directory paths:
 
 ```lua
-sessionizer.generators.MostRecentWorkspace {}
-```
-
-### AllActiveWorkspaces
-Creates entries for all active workspaces:
-
-```lua
-sessionizer.generators.AllActiveWorkspaces {
-    filter_default = true, -- Optional, excludes the default workspace if true
-    filter_current = true, -- Optional, excludes the current workspace if true
+local my_schema = {
+  sessionizer.FdSearch(wezterm.home_dir .. "/dev"),
+  
+  -- Make paths more readable by replacing home directory with ~
+  processing = sessionizer.for_each_entry(function(entry)
+    entry.label = entry.label:gsub(wezterm.home_dir, "~")
+  end)
 }
 ```
 
-### FdSearch
-Uses the `fd` command to search for directories:
+You can also use multiple processing functions:
 
 ```lua
-sessionizer.generators.FdSearch {
-    "/path/to/search", -- Required, the path to search in
-    fd_path = "", -- Optional, path to fd binary (auto-detected by default)
-    include_submodules = false, -- Optional, include git submodules
-    max_depth = 16, -- Optional, maximum depth to search
-    format = "{//}", -- Optional, fd format string
-    exclude = { "node_modules" }, -- Optional, patterns to exclude
-    extra_args = {}, -- Optional, additional arguments to fd
-    overwrite = {} -- Optional, completely override the fd command
+processing = {
+  -- First processor: Shorten paths
+  sessionizer.for_each_entry(function(entry)
+    entry.label = entry.label:gsub(wezterm.home_dir, "~")
+  end),
+  
+  -- Second processor: Add icons to entries
+  sessionizer.for_each_entry(function(entry)
+    entry.label = "📁 " .. entry.label
+  end)
 }
 ```
-Note that if you just use the search path the following works as well:
+
+## Advanced Examples
+
+1. How I use it: \
+   _coming soon_
+3. A replica of [smart_workspace_switcher.wezterm](https://github.com/MLFlexer/smart_workspace_switcher.wezterm):
 ```lua
-sessionizer.generators.FdSearch "/path/to/search"
-```
+local history = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer-history.git"
 
-## Customization
-
-### Options
-
-You can set options for any spec using the `options` key:
-
-```lua
-sessionizer.spec = {
+local smart_workspace_switcher_replica = {
     options = {
-        title = "My Sessionizer", -- The title shown in the selection UI
-        description = "Select a workspace:", -- The description shown in the selection UI
-        always_fuzzy = true, -- Whether to always use fuzzy search
-        callback = sessionizer.actions.SwitchToWorkspace -- The action to perform when an entry is selected
-    },
-    -- Other spec entries...
-}
-```
-
-### Styling with Processors
-
-A spec is best styled by using processors and `wezterm.format`. A processor takes an array/table of Entry and can modify them.
-
-If you need just one processor use `<any spec>.processing` if you need multiple you can put them into a table inside the `processing` field.
-
-The entry array you will get contains all entries generated by the spec you are in minus the entries a processor might have removed before.
-
-For example:
-
-```lua
-sessionizer.spec = {
-    {
-        sessionizer.generators.AllActiveWorkspaces { show_current_workspace = true, show_default_workspace = false, },
-        processing = {
-            function(entries, next) -- Using the next callback to chain processors (optional but can be done to influence order)
-                for _, entry in pairs(entries) do
-                    entry.label = wezterm.format {
-                        { Foreground = { Color = "#77ee88" } },
-                        { Text = entry.label }
-                    }
-                end
-                next()
-            end,
-            sessionizer.helpers.for_each_entry(function(entry) entry.label = "active: " .. entry.label end),
-        },
-    },
-    "/home/user/.config",
-    processing = sessionizer.helpers.for_each_entry(function(entry) entry.label = entry.label:gsub(wezterm.home_dir, "~") end)
-}
-```
-
-### Helper Functions
-
-The plugin includes helper functions to make working with entries easier:
-
-```lua
--- Apply a function to each entry in a spec
-sessionizer.helpers.for_each_entry(function(entry) 
-    -- Modify entry here
-    entry.label = "Modified: " .. entry.label
-end)
-```
-
-### Named Specs
-
-You can name specs and reference them later:
-
-```lua
-sessionizer.spec = {
-    {
-        name = "dev-projects",
-        options = {
-            title = "Development Projects",
-            description = "Select a development project:"
-        },
-        sessionizer.generators.FdSearch "/home/user/dev"
+        prompt = "Workspace to switch: ",
+        callback = history.Wrapper(sessionizer.DefaultCallback)
     },
     {
-        name = "config-files",
-        options = {
-            title = "Config Files",
-            description = "Select a config file to edit:"
-        },
-        "/home/user/.config/nvim",
-        "/home/user/.config/wezterm",
-        "/home/user/.nixos-config"
-    }
-}
-
--- Later, you can show a specific named spec
-sessionizer.show("dev-projects")
-```
-
-### Key Binds
-
-You can disable the default bindings by passing an additional true to the `apply_to_config` function:
-
-```lua
-sessionizer.apply_to_config(config, true)
-```
-
-To add custom bindings:
-
-```lua
-config.keys = config.keys or {}
-
-table.insert(config.keys, {
-    key = "p",
-    mods = "ALT",
-    action = sessionizer.show("dev-projects")
-})
-
-table.insert(config.keys, {
-    key = "c",
-    mods = "ALT",
-    action = sessionizer.show("config-files")
-})
-```
-
-## Advanced Usage Examples
-
-### Customized Workspace Switcher
-
-```lua
-local workspace_switcher = {
-    options = {
-        title = "Workspaces",
-    },
-    sessionizer.generators.DefaultWorkspace {},
-    {
-        sessionizer.generators.AllActiveWorkspaces {},
-        processing = sessionizer.helpers.for_each_entry(function(entry)
+        sessionizer.AllActiveWorkspaces { filter_current = false, filter_default = false },
+        processing = sessionizer.for_each_entry(function(entry)
             entry.label = wezterm.format {
-                { Foreground = { Color = "#44cc88" } },
-                { Text = "active: " .. entry.label }
+                { Text = "󱂬 : " .. entry.label },
             }
         end)
     },
-    {
-        sessionizer.generators.FdSearch "/home/mikka/dev",
-        processing = sessionizer.helpers.for_each_entry(function(entry)
-            entry.label = wezterm.format {
-                { Foreground = { Color = "orange" } },
-                { Text = " " .. entry.label }
-            }
-        end)
-    },
-    processing = sessionizer.helpers.for_each_entry(function(entry)
+    wezterm.plugin.require "https://github.com/mikkasendke/sessionizer-zoxide.git".Zoxide {},
+    processing = sessionizer.for_each_entry(function(entry)
         entry.label = entry.label:gsub(wezterm.home_dir, "~")
-    end)
+    end),
 }
 
 table.insert(config.keys, {
-    key = "w",
+    key = "e",
     mods = "ALT",
-    action = sessionizer.show(workspace_switcher)
+    action = sessionizer.show(smart_workspace_switcher_replica)
 })
-```
-
-### Using Zoxide Integration
-
-If you have the zoxide plugin installed:
-
-```lua
 table.insert(config.keys, {
-    key = "z",
-    mods = "ALT"
-    action = sessionizer.show {
-+        options = {
-            title = "Zoxide Directories",
-            description = "Select a recent directory:"
-        },
-        wezterm.plugin.require "https://github.com/mikkasendke/sessionizer-zoxide".Zoxide,
-        processing = sessionizer.helpers.for_each_entry(function(e) 
-            e.label = "ZOXIDE: " .. e.label 
-        end)
-    }
-)
-    
-```
-
-or something like smart workspace switcher
+    key = "m",
+    mods = "ALT",
+    action = history.switch_to_most_recent_workspace
+})
+ ```
+3. Migrating a legacy config:
+Here is an example of a config in the old style and what it turns into:
+Old:
 ```lua
-local smart_workspace_switcher = {
-    {
-        sessionizer.generators.AllActiveWorkspaces { show_current_workspace = true, show_default_workspace = false, },
-        processing = function(entries)
-            for _, entry in pairs(entries) do
-                entry.label = wezterm.format {
-                    { Foreground = { Color = "#77ee88" } },
-                    { Text = entry.label }
-                }
-            end
-        end
-    },
-    sessionizer.generators.Zoxide {},
-    processing = sessionizer.helpers.for_each_entry(function(entry) entry.label = entry.label:gsub(wezterm.home_dir, "~") end)
+local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
+sessionizer.apply_to_config(config) -- this is not needed anymore (no default binds)
+local home_dir = wezterm.home_dir
+local config_path = home_dir .. ("/.config")
+sessionizer.config.paths = { -- for these you will want a sessionizer.FdSerach for each of the paths
+    home_dir .. "/dev",
+    home_dir .. "/other"
+}
+sessionizer.config.title = "My title" -- this moves to the options field
+sessionizer.config.fuzzy = false -- in options field now renamed to always_fuzzy
+sessionizer.config.show_additional_before_paths = true -- not needed as order matters in a schema table
+command_options = { include_submodules = true } -- these options can now be passed to sessionizer.FdSearch individually
+sessionizer.config.additional_directories = { -- these can be put in the schema by themselves
+    config_path .. "/wezterm",
+    config_path .. "/nvim",
+    config_path,
+    home_dir .. "/.nixos-config",
+    home_dir .. "/dev",
+}
+```
+Migrated version:
+```lua
+local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
+local history = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer-history.git" -- the most recent functionality moved to another plugin
+
+local home_dir = wezterm.home_dir
+local config_path = home_dir .. ("/.config")
+
+local schema = {
+   options = {
+      title = "My title",
+      always_fuzzy = false,
+      callback = history.Wrapper(sessionizer.DefaultCallback), -- tell history that we changed to another workspace
+   },
+   config_path .. "/wezterm",
+   config_path .. "/nvim",
+   config_path,
+   home_dir .. "/.nixos-config",
+   home_dir .. "/dev",
+   sessionizer.FdSearch { home_dir .. "/dev", include_submodules = true },
+   sessionizer.FdSearch { home_dir .. "/dev", include_submodules = true },
+}
+-- Now you need to call sessionizer.show with this schema on a keypress yourself.
+-- you could for example do:
+config.keys = {
+   { key = "s", mods = "ALT", action = sessionizer.show(schema) },
+   { key = "m", mods = "ALT", action = history.switch_to_most_recent_workspace },
 }
 ```
 
-## Reference
+## List of plugins that provide features
 
-### Main Functions
-
-- `sessionizer.show(spec, name)`: Shows a selection menu for the given spec or named spec
-- `sessionizer.switch_to_most_recent`: Switches to the most recently used workspace
-- `sessionizer.apply_to_config(config, disable_defaults)`: Applies the plugin to the WezTerm config
-
-### Helpers
-
-- `sessionizer.helpers.for_each_entry(func)`: Creates a processor that applies func to each entry
-- `sessionizer.helpers.evaluate_spec(spec)`: Evaluates a spec to produce entries
+* [sessionizer-history](https://github.com/mikkasendke/sessionizer-history): provides a generator and callback wrapper for getting the most recent workspace
+* [sessionizer-zoxide](https://github.com/mikkasendke/sessionizer-zoxide): provides a generator for results from zoxide
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit prs and/or issues.
+Contributions, issues, and pull requests are welcome!
+Especially now with the new version released any issue reports are very welcome :)
