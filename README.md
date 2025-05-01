@@ -199,8 +199,44 @@ processing = {
 
 ## Advanced Examples
 
-1. How I use it: \
-   _coming soon_
+1. How I use it:
+```lua
+local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
+local history = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer-history"
+
+local schema = {
+    options = { callback = history.Wrapper(sessionizer.DefaultCallback) },
+    sessionizer.DefaultWorkspace {},
+    history.MostRecentWorkspace {},
+
+    wezterm.home_dir .. "/dev",
+    wezterm.home_dir .. "/.nixos-config",
+    wezterm.home_dir .. "/.config/wezterm",
+    wezterm.home_dir .. "/.config/nvim",
+    wezterm.home_dir .. "/.config/sway",
+    wezterm.home_dir .. "/.config/waybar",
+    wezterm.home_dir .. "/.config/ags",
+    wezterm.home_dir .. "/Uni",
+
+    sessionizer.FdSearch(wezterm.home_dir .. "/dev"),
+    sessionizer.FdSearch(wezterm.home_dir .. "/Uni"),
+
+    processing = sessionizer.for_each_entry(function(entry)
+        entry.label = entry.label:gsub(wezterm.home_dir, "~")
+    end)
+}
+
+table.insert(config.keys, {
+    key = "s",
+    mods = "ALT",
+    action = sessionizer.show(schema)
+})
+table.insert(config.keys, {
+    key = "m",
+    mods = "ALT",
+    action = history.switch_to_most_recent_workspace
+})
+```
 3. A replica of [smart_workspace_switcher.wezterm](https://github.com/MLFlexer/smart_workspace_switcher.wezterm):
 ```lua
 local history = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer-history.git"
