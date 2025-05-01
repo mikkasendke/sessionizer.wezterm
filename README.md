@@ -3,7 +3,7 @@
 A flexible sessionizer for WezTerm allwoing you to define custom menus to switch workspaces, open projects, or trigger other actions. It was originally inspired by [ThePrimeagen's tmux-sessionizer](https://github.com/theprimeagen/tmux-sessionizer).
 
 > [!NOTE]
-> If you're using the old way of configuring this plugin you might want to read the sections below and/or have a look at the migration example down below under [Advanced Examples](#advanced-examples).
+> If you're using the old version of this plugin you might want to read the sections below and/or have a look at the migration example down below under [Advanced Examples](#advanced-examples). If you need the old version now it is available under https://github.com/mikkasendke/sessionizer-legacy and replace the url of `wezterm.plugin.require`.
 
 ## Installation
 
