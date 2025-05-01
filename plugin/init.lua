@@ -1,76 +1,46 @@
--- NOTE: First we add our path to the package.path because we want to do requires easily
 package.path = package.path .. ";" .. (select(2, ...):gsub("init.lua$", "?.lua"))
 
-local wez = require "wezterm"
-local act = wez.action
-local config = require "sessionizer.config"
-local history = require "sessionizer.history"
+local wezterm = require "wezterm"
+local schema_processor = require "sessionizer.schema_processor"
+local input_selector = require "sessionizer.input_selector"
+local uniqueEventCount = 0
 
-local plugin = {}
+return {
+    apply_to_config = function(config) end,
+    show = function(schema)
+        local uniqueEventId = "sessionizer-show-" .. uniqueEventCount
+        uniqueEventCount = uniqueEventCount + 1
 
-plugin.config = { command_options = { exclude = {}, }, } -- NOTE: unfortunetly necessary for now
+        wezterm.on(uniqueEventId, function(window, pane)
+            local entries = schema_processor.evaluate_schema(schema)
+            local options = schema_processor.complete_schema(schema).options
+            window:perform_action(input_selector.get_input_selector(options, entries), pane)
+        end)
+        return wezterm.action.EmitEvent(uniqueEventId)
+    end,
+    DefaultWorkspace = require "sessionizer.generators.default_workspace".DefaultWorkspace,
+    AllActiveWorkspaces = require "sessionizer.generators.all_active_workspaces".AllActiveWorkspaces,
+    FdSearch = require "sessionizer.generators.fd_search".FdSearch,
 
-plugin.apply_to_config = function(user_config, disable_default_binds)
-    require "sessionizer.bindings".apply_binds(plugin, user_config, disable_default_binds)
-end
+    for_each_entry = require "sessionizer.helpers".for_each_entry,
+    DefaultCallback = require "sessionizer.schema_processor".DefaultCallback, -- NOTE: maybe relocate this
+}
 
-local show_identifier = "sessionizer.show"
-plugin.show = act.EmitEvent(show_identifier)
-wez.on(show_identifier, function(window, pane)
-    local entries = plugin.get_entries()
+---@alias Schema SchemaScope|(PrimitiveElement)[]
 
-    local i = 1
-    local function next()
-        local processor = plugin.entry_processors[i]
-        i = i + 1
-        if processor then
-            processor(entries, next)
-        end
-    end
-    next()
+---@class SchemaScope
+---@field options SchemaOptions
+---@field processing (fun(schema: Entry[]): Entry[])[]
+---@field [integer] Schema
 
-    plugin.display_entries(entries, window, pane)
-end)
+---@class SchemaOptions
+---@field title string
+---@field prompt string
+---@field always_fuzzy boolean
+---@field callback fun(window, pane, id, label)
 
-plugin.get_entries = function()
-    local cfg = config.get_effective_config(plugin.config)
-    return require "sessionizer.entries".get_entries(cfg)
-end
+---@alias PrimitiveElement Entry|string
 
-plugin.entry_processors = {}
-plugin.use_entry_processor = function(f)
-    table.insert(plugin.entry_processors, f)
-end
-
-local show_active = "sessionizer.show-active"
-plugin.show_active = act.EmitEvent(show_active)
-wez.on(show_active, function(window, pane)
-    local active_workspaces = {}
-    local current = wez.mux.get_active_workspace()
-    for index, item in ipairs(wez.mux.get_workspace_names()) do
-        local label = item
-        if item == current then
-            label = label .. " (Current)"
-        end
-        table.insert(active_workspaces, index, { id = item, label = label })
-    end
-    plugin.display_entries(active_workspaces, window, pane)
-end)
-
----@param entries { id: string, label: string }
-plugin.display_entries = function(entries, window, pane)
-    local cfg = config.get_effective_config(plugin.config)
-    window:perform_action(require "sessionizer.input_selector".get(cfg, entries), pane)
-end
-
-local show_most_recent_identifier = "sessionizer.switch-to-most-recent"
-plugin.switch_to_most_recent = act.EmitEvent(show_most_recent_identifier)
-wez.on(show_most_recent_identifier, function(window, pane)
-    local previous_workspace = wez.mux.get_active_workspace()
-    window:perform_action(act.SwitchToWorkspace(
-        history.get_most_recent_workspace()
-    ), pane)
-    history.set_most_recent_workspace(previous_workspace)
-end)
-
-return plugin
+---@class Entry
+---@field id string
+---@field label string
