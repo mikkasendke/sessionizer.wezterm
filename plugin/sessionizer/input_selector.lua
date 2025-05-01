@@ -2,16 +2,17 @@ local wezterm = require "wezterm"
 
 local input_selector = {}
 
----@param options SpecOptions
----@param entries Entry[]
-input_selector.get = function(options, entries)
+---@param options SchemaOptions
+---@param choices Entry[]
+---@return unknown
+input_selector.get_input_selector = function(options, choices)
     return wezterm.action.InputSelector {
         title = options.title,
-        choices = entries,
+        description = options.prompt,
+        fuzzy_description = options.prompt,
         fuzzy = options.always_fuzzy,
+        choices = choices,
         action = wezterm.action_callback(options.callback),
-        description = options.description,
-        fuzzy_description = options.description,
     }
 end
 

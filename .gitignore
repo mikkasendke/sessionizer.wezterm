@@ -1,4 +1,4 @@
-dev_config.lua
+test.lua
 issue_*.lua
 .direnv
 .envrc
