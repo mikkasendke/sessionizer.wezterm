@@ -5,6 +5,8 @@ A flexible sessionizer for WezTerm allwoing you to define custom menus to switch
 > [!NOTE]
 > If you're using the old version of this plugin you might want to read the sections below and/or have a look at the migration example down below under [Advanced Examples](#advanced-examples). If you need the old version now it is available under https://github.com/mikkasendke/sessionizer-legacy and replace the url of `wezterm.plugin.require`.
 
+https://github.com/user-attachments/assets/e99b29ec-39f4-4066-8aca-b89fdae3994c
+
 ## Installation
 
 #### 1. Install Dependencies (Optional but reccommended)
