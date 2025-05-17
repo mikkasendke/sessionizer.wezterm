@@ -37,7 +37,7 @@ local function normalize_options(opts)
         extra_args = {},
     }
 
-    if not default_options.fd_path then
+    if not opts.fd_path then
         default_options.fd_path = get_fd_path_auto() or "fd_not_found"
     end
 
