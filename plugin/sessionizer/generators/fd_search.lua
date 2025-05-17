@@ -23,7 +23,11 @@ local function get_fd_path_auto()
         return
     end
 
-    return stdout:gsub("\n$", "")
+    local cleansed = stdout:gsub("\n$", "")
+    if is_windows then
+        cleansed = cleansed:gsub("\r$", "")
+    end
+    return cleansed
 end
 
 local function normalize_options(opts)
