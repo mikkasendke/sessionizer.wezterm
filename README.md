@@ -332,6 +332,8 @@ config.keys = {
 * [sessionizer-history](https://github.com/mikkasendke/sessionizer-history): provides a generator and callback wrapper for getting the most recent workspace
 * [sessionizer-zoxide](https://github.com/mikkasendke/sessionizer-zoxide): provides a generator for results from zoxide
 
+_Feel free to make a pr if you have another plugin that integrates with sessionizer.wezterm._
+
 ## Contributing
 
 Contributions, issues, and pull requests are welcome!
