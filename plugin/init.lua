@@ -1,4 +1,4 @@
-package.path = package.path .. ";" .. (select(2, ...):gsub("init.lua$", "?.lua"))
+package.path = package.path .. ";" .. ({ ... })[2]:gsub("init.lua$", "?.lua")
 
 local wezterm = require "wezterm"
 local schema_processor = require "sessionizer.schema_processor"
