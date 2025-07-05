@@ -1,6 +1,6 @@
 # sessionizer.wezterm
 
-A flexible sessionizer for WezTerm allwoing you to define custom menus to switch workspaces, open projects, or trigger other actions. It was originally inspired by [ThePrimeagen's tmux-sessionizer](https://github.com/theprimeagen/tmux-sessionizer).
+A flexible sessionizer for WezTerm allowing you to define custom menus to switch workspaces, open projects, or trigger other actions. It was originally inspired by [ThePrimeagen's tmux-sessionizer](https://github.com/theprimeagen/tmux-sessionizer).
 
 > [!NOTE]
 > If you're using the old version of this plugin you might want to read the sections below and/or have a look at the migration example down below under [Advanced Examples](#advanced-examples). If you need the old version now it is available under https://github.com/mikkasendke/sessionizer-legacy and replace the url of `wezterm.plugin.require`.
@@ -9,7 +9,7 @@ https://github.com/user-attachments/assets/e99b29ec-39f4-4066-8aca-b89fdae3994c
 
 ## Installation
 
-#### 1. Install Dependencies (Optional but reccommended)
+#### 1. Install Dependencies (Optional but recommended)
    Install [`fd`](https://github.com/sharkdp/fd): Only needed if you want to use the `FdSearch` _generator_ (This is usually used to get the paths to git repositories).
 
 #### 2. Add to WezTerm Config
@@ -33,7 +33,7 @@ https://github.com/user-attachments/assets/e99b29ec-39f4-4066-8aca-b89fdae3994c
    ```
 
 #### 4. Add a Keybinding
-Insert something like this into your config.keys table.
+Insert something like this into your config.keys table:
    ```lua
    config.keys = {
      { key = "S", mods = "ALT", action = sessionizer.show(my_schema) },
@@ -239,7 +239,7 @@ table.insert(config.keys, {
     action = history.switch_to_most_recent_workspace
 })
 ```
-3. A replica of [smart_workspace_switcher.wezterm](https://github.com/MLFlexer/smart_workspace_switcher.wezterm):
+2. A replica of [smart_workspace_switcher.wezterm](https://github.com/MLFlexer/smart_workspace_switcher.wezterm):
 ```lua
 local history = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer-history.git"
 
@@ -272,7 +272,7 @@ table.insert(config.keys, {
     mods = "ALT",
     action = history.switch_to_most_recent_workspace
 })
- ```
+```
 3. Migrating a legacy config:
 Here is an example of a config in the old style and what it turns into:
 Old:
@@ -281,7 +281,7 @@ local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessi
 sessionizer.apply_to_config(config) -- this is not needed anymore (no default binds)
 local home_dir = wezterm.home_dir
 local config_path = home_dir .. ("/.config")
-sessionizer.config.paths = { -- for these you will want a sessionizer.FdSerach for each of the paths
+sessionizer.config.paths = { -- for these you will want a sessionizer.FdSearch for each of the paths
     home_dir .. "/dev",
     home_dir .. "/other"
 }
@@ -317,7 +317,7 @@ local schema = {
    home_dir .. "/.nixos-config",
    home_dir .. "/dev",
    sessionizer.FdSearch { home_dir .. "/dev", include_submodules = true },
-   sessionizer.FdSearch { home_dir .. "/dev", include_submodules = true },
+   sessionizer.FdSearch { home_dir .. "/other", include_submodules = true },
 }
 -- Now you need to call sessionizer.show with this schema on a keypress yourself.
 -- you could for example do:
