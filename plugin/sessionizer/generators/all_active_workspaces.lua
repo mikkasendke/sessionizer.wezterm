@@ -15,7 +15,7 @@ local function find(opts)
     local entries = {}
 
     local current = nil
-    if opts.filter_default then
+    if opts.filter_current then
         current = wezterm.mux.get_active_workspace()
     end
 
